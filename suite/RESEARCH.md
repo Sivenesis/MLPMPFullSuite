@@ -443,7 +443,7 @@ Check whether Gameloft modified the rotation constant:
 2. If the constant changed from 5 to $N$, update `ror32(val, N)` and `rol32(val, N)` in `core/crypto.py`.
 
 ### Step 5: Update Centralized Configuration
-Modify `version2/core/offsets.py` with the updated RVAs and version string:
+Modify `suite/core/offsets.py` with the updated RVAs and version string:
 ```python
 TARGET_GAME_VERSION = "11.x.x"
 SUITE_VERSION = "2.x.x"
