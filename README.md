@@ -47,9 +47,9 @@ The Suite is built from the ground up to be strictly non-invasive. It operates e
 The Profile Editor provides comprehensive management over player progression and inventory:
 - **Progression Management**: Edit your current player level and XP. The Suite includes an integrated XP table parser that automatically calculates and applies the exact XP thresholds required for your target level.
 - **Currency & Shards**: Adjust your core economy (Bits, Gems, Hearts), social currency (Friendship Hearts), and Element Shards. All containers are encrypted using Gameloft's 20-byte container cipher with preserved key entropy.
-- **Pony Boutique & Crafting**: Toggle ownership hooks across all costume sets and pieces in the Fashion Page, while managing crafting supplies (Pins, Buttons, Twine, Ribbons, Bows).
+- **Pony Editor & Crafting**: Toggle ownership hooks across all costume sets and pieces in the Fashion Page, while managing crafting materials (Pins, Buttons, Twine, Ribbons, Bows).
 - **Group Quests & Boosters**: Set bonus keys for quest reward chests, and extend or increase active multiplier boosters.
-- **Minigames**: Take control of the Find a Pair minigame by locking the timer or setting score multipliers. The unique 'Deny Decreasing' mode lets your multiplier climb naturally while preventing any decreases upon mismatches. Instantly reset the Ferris Wheel timer for back-to-back free spins.
+- **Minigames**: Take control of the Find a Pair minigame by locking the timer or setting score multipliers. The unique 'Deny Decreasing' mode lets your multiplier climb naturally while preventing any decreases upon mismatches. Instantly reset the Ferris Wheel timer for back-to-back spins.
 
 ### Tab 2: Fortune Shop and Store Tweaks
 The Fortune Shop and Store Tweaks tab is dedicated to character acquisition and catalog management:
