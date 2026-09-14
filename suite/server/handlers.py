@@ -3,6 +3,8 @@ REST API Request Dispatchers & Route Handlers for MLPMP Full Suite.
 Coordinates state polling, mechanic execution, and system management.
 """
 
+import datetime
+from pathlib import Path
 from typing import Dict, Any, Optional
 from core.memory import mem
 from core.version_check import check_game_version
@@ -83,8 +85,24 @@ def handle_get_full_state() -> Dict[str, Any]:
     }
 
 
+def handle_version_override(payload: Dict[str, Any] = None) -> Dict[str, Any]:
+    """Records explicit user override of version mismatch."""
+    mem.version_override_confirmed = True
+    mem.log("WARN", "User explicitly confirmed version mismatch override. Memory writes enabled.")
+    return {
+        "success": True,
+        "message": "Version mismatch override confirmed.",
+    }
+
+
 def handle_mechanic_action(mechanic_name: str, payload: Dict[str, Any]) -> Dict[str, Any]:
     """Dispatches an action payload to the specified mechanic."""
+    if not isinstance(payload, dict):
+        return {
+            "success": False,
+            "message": "Invalid request payload (expected JSON object).",
+        }
+
     mech = MECHANICS.get(mechanic_name)
     if not mech:
         return {
@@ -97,6 +115,16 @@ def handle_mechanic_action(mechanic_name: str, payload: Dict[str, Any]) -> Dict[
             "success": False,
             "message": "Suite is not attached to the game process. Please click 'Attach' first.",
         }
+
+    ver_info = check_game_version()
+    if not ver_info.get("is_match", True):
+        override = payload.get("override_version", False) or getattr(mem, "version_override_confirmed", False)
+        if not override:
+            return {
+                "success": False,
+                "version_mismatch": True,
+                "message": f"Game version mismatch detected ({ver_info.get('detected_version')}). Writes blocked unless explicit user confirmation is provided.",
+            }
 
     ok, msg = mech.apply(payload)
     return {
@@ -144,4 +172,65 @@ def handle_get_level_table(refresh: bool = False) -> Dict[str, Any]:
         "total_levels": len(table),
         "table": table,
     }
+
+
+def handle_save_logs(payload: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    Exports the current debug console log stream into log.txt located in the
+    suite root directory right next to start.bat.
+    """
+    try:
+        proj_dir = Path(__file__).resolve().parent.parent
+        target_path = proj_dir / "log.txt"
+        logs = mem.get_logs()
+
+        now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        status = handle_get_status()
+        pid_val = status.get("pid") or "N/A"
+        base_val = status.get("module_base") or "N/A"
+        ver_val = status.get("target_game_version") or "N/A"
+
+        lines = [
+            "=" * 80,
+            " MLPMP FULL SUITE - INTERNAL DEBUG CONSOLE LOG EXPORT",
+            f" Export Time    : {now_str}",
+            f" Target Process : MyLittlePony_x64.exe (PID: {pid_val})",
+            f" Module Base    : {base_val}",
+            f" Target Version : {ver_val}",
+            f" Total Entries  : {len(logs)}",
+            "=" * 80,
+            "",
+        ]
+
+        if logs:
+            for entry in logs:
+                t = entry.get("timestamp", "--:--:--")
+                lvl = (entry.get("level") or "INFO").upper()
+                msg = entry.get("message", "")
+                lines.append(f"[{t}] [{lvl:7s}] {msg}")
+        else:
+            lines.append("[No log entries currently in memory buffer]")
+
+        lines.append("")
+        lines.append(f"--- [EOF] Log file saved to {target_path.name} ---")
+        lines.append("")
+
+        with open(target_path, "w", encoding="utf-8") as f:
+            f.write("\n".join(lines))
+
+        mem.log("SUCCESS", f"Exported {len(logs)} debug console logs to log.txt near start.bat")
+        return {
+            "success": True,
+            "filename": "log.txt",
+            "path": str(target_path),
+            "count": len(logs),
+            "message": f"Saved {len(logs)} log entries to log.txt (near start.bat).",
+        }
+    except Exception as e:
+        mem.log("ERROR", f"Failed saving logs to log.txt: {e}")
+        return {
+            "success": False,
+            "error": f"Failed saving to log.txt: {str(e)}",
+        }
+
 

@@ -126,9 +126,11 @@ class FortuneShopMechanic(BaseMechanic):
 
         base = mem.module_base
 
+        ok = True
+
         # 1. Restore vanilla code bytes in FortuneShopDialog::Update to ensure native execution
-        mem.write_bytes(base + RVA_FORTUNE_VIS_CHECK, ORIG_FORTUNE_VIS)
-        mem.write_bytes(base + RVA_FORTUNE_FREE_CHECK, ORIG_FORTUNE_FREE)
+        ok &= mem.write_bytes(base + RVA_FORTUNE_VIS_CHECK, ORIG_FORTUNE_VIS)
+        ok &= mem.write_bytes(base + RVA_FORTUNE_FREE_CHECK, ORIG_FORTUNE_FREE)
 
         # 2. Activate Royal Club / VIP membership at [ResourceManager + 0xDA0]
         # Required because Fortune Shop refresh is natively an exclusive Royal Club perk.
@@ -136,25 +138,27 @@ class FortuneShopMechanic(BaseMechanic):
         if pm_addr:
             rc_addr = pm_addr + OFF_ROYAL_CLUB_BASE
             safe_future_ts = int(time.time()) + self.ONE_YEAR_SECONDS
-            mem.write_u8(rc_addr + OFF_RC_IS_ACTIVE, 1)
-            mem.write_u64(rc_addr + OFF_RC_EXPIRATION, safe_future_ts)
-            mem.write_u8(rc_addr + OFF_RC_TIER, 1)       # Tier 2
-            mem.write_u8(rc_addr + OFF_RC_TIER_ACTIVE, 1)
+            ok &= mem.write_u8(rc_addr + OFF_RC_IS_ACTIVE, 1)
+            ok &= mem.write_u64(rc_addr + OFF_RC_EXPIRATION, safe_future_ts)
+            ok &= mem.write_u8(rc_addr + OFF_RC_TIER, 1)       # Tier 2
+            ok &= mem.write_u8(rc_addr + OFF_RC_TIER_ACTIVE, 1)
+        else:
+            ok = False
 
         # 3. Patch FortuneShopManager fields
-        mem.write_u8(fsm + OFF_FSM_AVAILABLE, 1)
-        mem.write_u32(fsm + OFF_FSM_REFRESH_COST, target_cost)
-        mem.write_u32(fsm + OFF_FSM_REQUIRED_LVL, 1)
-        mem.write_u64(fsm + OFF_FSM_LAST_REFRESH, 0)     # Clear 24h cooldown
-        mem.write_u8(fsm + OFF_FSM_FREE_AVAILABLE, 0)
+        ok &= mem.write_u8(fsm + OFF_FSM_AVAILABLE, 1)
+        ok &= mem.write_u32(fsm + OFF_FSM_REFRESH_COST, target_cost)
+        ok &= mem.write_u32(fsm + OFF_FSM_REQUIRED_LVL, 1)
+        ok &= mem.write_u64(fsm + OFF_FSM_LAST_REFRESH, 0)     # Clear 24h cooldown
+        ok &= mem.write_u8(fsm + OFF_FSM_FREE_AVAILABLE, 0)
 
         # 4. Reset GameState + 0x13DA (FortuneShopRefreshSeen)
         gs_ptr = mem.read_ptr(base + RVA_GAME_STATE)
         if gs_ptr and mem.is_valid_user_ptr(gs_ptr):
-            mem.write_u8(gs_ptr + 0x13DA, 0)
+            ok &= mem.write_u8(gs_ptr + 0x13DA, 0)
 
         # 5. Invalidate UI cache at [base + RVA_UI_INVALIDATE] to show refresh button immediately
-        mem.write_bytes(base + RVA_UI_INVALIDATE, struct.pack("<i", -1))
+        ok &= mem.write_bytes(base + RVA_UI_INVALIDATE, struct.pack("<i", -1))
 
         # 6. Patch Rarity Weights at [FSM + 0x18]
         sentinel = mem.read_ptr(fsm + OFF_FSM_RARITY_TREE)
@@ -181,18 +185,23 @@ class FortuneShopMechanic(BaseMechanic):
                     target_w = 100 if r_id == 2 else 0
                 else:
                     target_w = 50 if r_id == 0 else 35 if r_id == 1 else 15
-                mem.write_u32(n_addr + 0x20, target_w)
+                ok &= mem.write_u32(n_addr + 0x20, target_w)
 
-            mem.write_u32(fsm + OFF_FSM_TOTAL_WEIGHT, 100)
+            ok &= mem.write_u32(fsm + OFF_FSM_TOTAL_WEIGHT, 100)
 
         # 7. Crucial: Write 0 to [fsm + 0x78] (day_number)
         # Causes native Update (vfunc[4] at 0x4FC282) to detect day 0 != today,
         # immediately rolling a fresh roster and saving today's day number!
-        mem.write_u64(fsm + OFF_FSM_DAY_NUMBER, 0)
+        ok &= mem.write_u64(fsm + OFF_FSM_DAY_NUMBER, 0)
 
-        msg = "Fortune Shop refreshed (24-hour cooldown cleared, roster re-rolled, Royal Club synchronized)."
-        mem.log("SUCCESS", f"[Fortune] {msg}")
-        return True, msg
+        if ok:
+            msg = "Fortune Shop refreshed (24-hour cooldown cleared, roster re-rolled, Royal Club synchronized)."
+            mem.log("SUCCESS", f"[Fortune] {msg}")
+            return True, msg
+        else:
+            msg = "Fortune Shop refresh partially failed (one or more memory writes could not be completed)."
+            mem.log("WARN", f"[Fortune] {msg}")
+            return False, msg
 
 
 fortune_shop_mechanic = FortuneShopMechanic()

@@ -306,12 +306,16 @@ The in-game store holds an array of 2,381 character records at `[ModuleBase + RV
 - **Stride**: `0x158` (344 bytes) per item record.
 - **Record Structure**:
   ```
+  +0x08: uint32_t CategoryId    -> 0x39 for playable character records
   +0x18: uint64_t InternItemPtr -> +0x08 -> null-terminated item ID string
-  +0x7C: uint8_t  b124          -> Base availability
-  +0x7D: uint8_t  b125          -> Active-on-shelf flag (1 = visible in store)
-  +0x7E: uint8_t  b126          -> Rotation-eligible flag
-  +0x108: Currency Container    -> Type: 0 = Bits, 1 = Gems, 2 = Hearts
-  +0x110: float   SortPrice     -> Must be >= 1.0f for Scaleform sorting
+  +0x38: uint64_t ZoneArrayStart-> Pointer to valid town zone IDs array
+  +0x40: uint64_t ZoneArrayEnd  -> Pointer to end of town zone IDs array
+  +0x90: uint32_t ObfuscatedPrice[4] -> 16-byte encrypted price container (ROR32-5)
+  +0x108: uint32_t CurrencyType -> Type: 0 = Bits, 1 = Gems, 2 = Hearts
+  +0x110: float   SortPrice     -> Must be >= 1.0f for Scaleform category sorting
+  +0x124: uint8_t b124          -> Base availability flag
+  +0x125: uint8_t b125          -> Active-on-shelf flag (1 = visible on store shelves)
+  +0x126: uint8_t b126          -> Rotation-eligible flag
   ```
 
 #### The 8 Master Code Hooks:
@@ -465,7 +469,29 @@ Because the entire backend, API server, and web frontend are fully decoupled fro
 | `ShopManager` | Singleton | Native C++ Class | Manages 2,381-pony character array and shelf rendering |
 | `FortuneShopManager` | Double Ptr | Native C++ Class | Controls Fortune Shop daily rotation and gem costs |
 | `StateMinigameFindPair` | FSM Node | State ID 102 | Controls Find a Pair timer, multiplier, and score |
-| `b125` | `Item + 0x7D` | `uint8_t` | Active-on-shelf visibility bit in store record |
-| `b126` | `Item + 0x7E` | `uint8_t` | Rotation-eligibility bit in store record |
+| `b124` | `Item + 0x124` | `uint8_t` | Base availability bit in store record |
+| `b125` | `Item + 0x125` | `uint8_t` | Active-on-shelf visibility bit in store record |
+| `b126` | `Item + 0x126` | `uint8_t` | Rotation-eligibility bit in store record |
 | `SortPrice` | `Item + 0x110`| `float` | Sorting key for Scaleform store category view |
 | `Scaleform GFx` | Engine Sub | Vector UI | UI framework executing ActionScript inside game |
+
+---
+
+## 8. Security Architecture & Trust Boundaries
+
+The MLPMP Full Suite is designed under a local, user-supervised process memory modification model:
+
+1. **Localhost Loopback Isolation**:
+   - The HTTP server is strictly bound to `127.0.0.1`. It never listens on external network interfaces (`0.0.0.0`) and makes zero outbound telemetry or external HTTP requests.
+2. **Origin & Host Header Validation**:
+   - Requests with missing or untrusted `Host` or `Origin` headers outside `127.0.0.1` and `localhost` are rejected with HTTP 403.
+3. **Cross-Site Request Forgery (CSRF) Mitigation**:
+   - All state-mutating requests (`POST`) require an ephemeral, 128-bit cryptographically secure session token (`X-Suite-Token`), blocking unauthorized requests from other local browser tabs.
+4. **Smart Memory Protection Elevation**:
+   - Data writes attempt direct `WriteProcessMemory` first, preserving standard page protections on heap structures. Protection elevation (`PAGE_EXECUTE_READWRITE`) is dynamically reserved only for read-only executable code segments.
+5. **Pre-flight Code Signature Verification**:
+   - In-place code hooks verify that target opcodes match expected vanilla or previously patched bytes before writing, preventing patch corruption if game revisions shift code locations.
+6. **Explicit Version Mismatch Gating**:
+   - If the attached game process reports an unexpected version string, memory writes are blocked at both the WebGUI and API dispatcher levels until the user explicitly confirms the override.
+7. **Strict Path Resolution & ZipSlip Defense**:
+   - Static file delivery validates path resolution with `is_relative_to(WEB_DIR)`, and asset extraction verifies normalized archive entry paths against target directories.

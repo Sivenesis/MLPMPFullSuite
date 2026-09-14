@@ -73,15 +73,22 @@ class SuiteApp {
     // Debug Console Modal
     this.elBtnLogs?.addEventListener('click', () => window.logViewer.open());
     document.getElementById('btn-close-modal')?.addEventListener('click', () => window.logViewer.close());
+    document.getElementById('btn-select-logs')?.addEventListener('click', () => window.logViewer.selectAll());
+    document.getElementById('btn-save-logs')?.addEventListener('click', () => window.logViewer.saveToFile());
     document.getElementById('btn-clear-logs')?.addEventListener('click', () => window.logViewer.clear());
 
     // Version Mismatch Override
-    this.elBtnOverride?.addEventListener('click', () => {
+    this.elBtnOverride?.addEventListener('click', async () => {
       this.mismatchOverridden = true;
       if (this.elMismatchBanner) {
         this.elMismatchBanner.classList.remove('show');
       }
       this.updateControlsLockState();
+      try {
+        await window.api.post('/api/version/override', { override_version: true });
+      } catch (e) {
+        console.warn('Failed notifying backend of version override:', e);
+      }
       window.toast.warn('Version safety override active. Controls unlocked.');
     });
 

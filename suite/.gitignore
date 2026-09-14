@@ -6,6 +6,7 @@ __pycache__/
 # Local Runtime Logs
 logs/
 *.log
+log.txt
 
 # Extracted Asset Cache (rebuilt automatically on launch from assets_part*.zip)
 web/assets/portraits/*.png

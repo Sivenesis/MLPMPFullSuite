@@ -13,7 +13,7 @@ import threading
 import time
 from urllib.parse import urlparse, parse_qs
 import zipfile
-from typing import Any
+from typing import Any, Optional, Dict
 
 try:
     from http.server import ThreadingHTTPServer as DefaultHTTPServer
@@ -36,6 +36,8 @@ from server.handlers import (
     handle_catalog_rescan,
     handle_store_hooks,
     handle_get_level_table,
+    handle_version_override,
+    handle_save_logs,
 )
 from mechanics.store import store_mechanic
 
@@ -104,6 +106,9 @@ def ensure_assets(project_dir: Path = PROJECT_DIR) -> bool:
         return False
 
 
+MAX_REQUEST_BODY = 1 * 1024 * 1024  # 1 MB maximum POST request payload
+
+
 class RobustHTTPServer(DefaultHTTPServer):
     daemon_threads = True
     allow_reuse_address = True
@@ -151,9 +156,12 @@ class SuiteRequestHandler(BaseHTTPRequestHandler):
         except Exception as ex:
             mem.log("ERROR", f"_send_json error: {ex}")
 
-    def _read_json_body(self) -> dict:
+    def _read_json_body(self) -> Optional[dict]:
         try:
             content_length = int(self.headers.get("Content-Length", 0))
+            if content_length > MAX_REQUEST_BODY:
+                mem.log("WARN", f"Request payload exceeded maximum size: {content_length} bytes (Limit: {MAX_REQUEST_BODY} bytes)")
+                return None
             if content_length > 0:
                 raw_body = self.rfile.read(content_length).decode("utf-8", errors="replace")
                 return json.loads(raw_body)
@@ -218,6 +226,8 @@ class SuiteRequestHandler(BaseHTTPRequestHandler):
             return self._send_json({"success": False, "error": "Unauthorized / Invalid CSRF Token"}, 403)
 
         body = self._read_json_body()
+        if body is None:
+            return self._send_json({"success": False, "error": "Payload Too Large (Maximum 1 MB allowed)"}, 413)
 
         if path == "/api/attach":
             return self._send_json(handle_post_attach())
@@ -228,6 +238,12 @@ class SuiteRequestHandler(BaseHTTPRequestHandler):
         elif path == "/api/logs/clear":
             mem.clear_logs()
             return self._send_json({"success": True, "message": "Logs cleared."})
+
+        elif path == "/api/logs/save":
+            return self._send_json(handle_save_logs(body))
+
+        elif path in ("/api/version/override", "/api/version-override"):
+            return self._send_json(handle_version_override(body))
 
         elif path == "/api/shutdown":
             mem.log("INFO", "Safe shutdown requested from WebGUI. Detaching and stopping server...")
@@ -271,11 +287,10 @@ class SuiteRequestHandler(BaseHTTPRequestHandler):
             path = "/index.html"
 
         safe_path = path.lstrip("/")
-        file_path = (WEB_DIR / safe_path).resolve()
-
-        # Prevent Directory Traversal
         try:
-            if not str(file_path).startswith(str(WEB_DIR.resolve()) + os.sep) and file_path != (WEB_DIR / "index.html").resolve():
+            file_path = (WEB_DIR / safe_path).resolve()
+            web_resolved = WEB_DIR.resolve()
+            if not (file_path == (web_resolved / "index.html") or file_path.is_relative_to(web_resolved)):
                 self.send_error(403, "Access Denied")
                 return
         except Exception:

@@ -1,5 +1,5 @@
 """
-MLPMP Full Suite v2.0.4 - Main Launcher Entrypoint.
+MLPMP Full Suite v2.1.0 - Main Launcher Entrypoint.
 Starts the local WebGUI server and opens the browser interface.
 """
 
@@ -27,7 +27,7 @@ def main():
         port = int(sys.argv[1])
 
     print("==================================================")
-    print("  MLPMP FULL SUITE v2.0.4 // LIVE RAM ARCHITECTURE")
+    print("  MLPMP FULL SUITE v2.1.0 // LIVE RAM ARCHITECTURE")
     print("==================================================")
     print("Target Process: MyLittlePony_x64.exe (v11.4.1a)")
     print(f"Web Interface:  http://127.0.0.1:{port}/")

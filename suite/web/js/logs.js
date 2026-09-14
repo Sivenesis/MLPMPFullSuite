@@ -8,6 +8,7 @@ class LogViewer {
     this.container = document.getElementById('log-entries');
     this.autoScrollCheckbox = document.getElementById('log-autoscroll');
     this.pollInterval = null;
+    this._lastLogsSignature = null;
   }
 
   open() {
@@ -34,6 +35,15 @@ class LogViewer {
     try {
       const data = await window.api.get('/api/logs');
       if (!data || !data.logs || !this.container) return;
+
+      // Avoid re-rendering DOM if logs haven't changed (preserves user selection / scroll)
+      const count = data.logs.length;
+      const lastEntry = count > 0 ? data.logs[count - 1] : null;
+      const signature = `${count}:${lastEntry ? lastEntry.timestamp + '|' + lastEntry.message : ''}`;
+      if (signature === this._lastLogsSignature) {
+        return;
+      }
+      this._lastLogsSignature = signature;
 
       this.container.innerHTML = '';
       data.logs.forEach((entry) => {
@@ -66,9 +76,50 @@ class LogViewer {
     }
   }
 
+  selectAll() {
+    if (!this.container) return;
+
+    // Highlight / select all log text in container
+    const range = document.createRange();
+    range.selectNodeContents(this.container);
+    const selection = window.getSelection();
+    if (selection) {
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+
+    // Also attempt copying to clipboard if supported
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(this.container.innerText).catch(() => {});
+      }
+    } catch (e) {
+      // Ignore clipboard permission errors; selection range is already active
+    }
+
+    window.toast.info('All logs selected (Ctrl+C to copy).');
+  }
+
+  async saveToFile() {
+    try {
+      const res = await window.api.post('/api/logs/save', {});
+      if (res && res.success) {
+        window.toast.success(res.message || 'Saved to log.txt near start.bat!');
+        // Refresh to show the save event logged
+        this._lastLogsSignature = null;
+        this.refresh();
+      } else {
+        window.toast.error(res?.error || 'Failed to save log.txt');
+      }
+    } catch (e) {
+      console.error('Failed saving logs to log.txt:', e);
+    }
+  }
+
   async clear() {
     try {
       await window.api.post('/api/logs/clear');
+      this._lastLogsSignature = null;
       this.refresh();
       window.toast.info('Debug log cleared.');
     } catch (e) {

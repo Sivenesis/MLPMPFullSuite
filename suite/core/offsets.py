@@ -10,7 +10,7 @@ from typing import Dict, Tuple, List, Any
 # Target Binary Definition
 TARGET_EXE_NAME = "MyLittlePony_x64.exe"
 TARGET_GAME_VERSION = "11.4.1a"
-SUITE_VERSION = "2.0.4"
+SUITE_VERSION = "2.1.0"
 
 # =============================================================================
 # SINGLETON RVAs (Relative Virtual Addresses from Main Module Base)

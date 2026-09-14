@@ -108,7 +108,7 @@ class CurrencyMechanic(BaseMechanic):
 
         for cur_id, off in main_offsets.items():
             if cur_id in payload and payload[cur_id] is not None:
-                val = max(0, min(int(payload[cur_id]), 2000000000))
+                val = max(0, min(int(payload[cur_id]), 2147483647))
                 raw = mem.read_bytes(pm_addr + off, 20)
                 k1, k2 = None, None
                 if raw and len(raw) == 20:

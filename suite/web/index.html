@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MLPMP Full Suite v2.0.4</title>
+  <title>MLPMP Full Suite v2.1.0</title>
   <link rel="stylesheet" href="/css/suite.css">
 </head>
 <body>
@@ -14,7 +14,7 @@
       <div class="header-top">
         <div class="brand-section">
           <span class="brand-title">MLPMP Full Suite</span>
-          <span class="meta-pill" id="suite-version-badge">v2.0.4</span>
+          <span class="meta-pill" id="suite-version-badge">v2.1.0</span>
           <span class="meta-pill">GAME v11.4.1a</span>
           <span class="meta-pill" id="meta-pid">PID ---</span>
           <span class="meta-pill status-detached" id="status-badge">DETACHED</span>
@@ -443,7 +443,7 @@
 
   <!-- Bottom Footer -->
   <footer class="footer-bar">
-    MLPMP Full Suite v2.0.4 — Check GitHub for updates: 
+    MLPMP Full Suite v2.1.0 — Check GitHub for updates: 
     <a href="https://github.com/Sivenesis/MLPMPFullSuite" target="_blank" class="footer-link">https://github.com/Sivenesis/MLPMPFullSuite</a>
   </footer>
 
@@ -465,7 +465,11 @@
           <input type="checkbox" id="log-autoscroll" checked>
           <span>Auto-Scroll to Latest</span>
         </label>
-        <button id="btn-clear-logs" class="btn">Clear Logs</button>
+        <div class="modal-footer-actions" style="display: flex; gap: 8px; align-items: center;">
+          <button type="button" id="btn-select-logs" class="btn">Select All</button>
+          <button type="button" id="btn-save-logs" class="btn btn-primary">Save to log.txt</button>
+          <button type="button" id="btn-clear-logs" class="btn">Clear Logs</button>
+        </div>
       </div>
     </div>
   </div>

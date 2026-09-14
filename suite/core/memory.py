@@ -257,15 +257,21 @@ class MemoryManager:
             return None
 
     def write_bytes(self, address: int, data: bytes) -> bool:
-        """Safely writes bytes to process memory with VirtualProtectEx protection elevation."""
+        """Safely writes bytes to process memory with smart protection elevation."""
         with self._lock:
             if not self.is_attached() or not self.is_valid_user_ptr(address):
                 return False
 
-            old_protect = wintypes.DWORD()
-            written = ctypes.c_size_t()
             length = len(data)
+            written = ctypes.c_size_t()
 
+            # 1. Fast path: Attempt direct write first (standard heap/data segments are already writable)
+            if WriteProcessMemory(self.handle, ctypes.c_void_p(address), data, length, ctypes.byref(written)):
+                if written.value == length:
+                    return True
+
+            # 2. Elevation path: If direct write failed (e.g. read-only .text code section), temporarily elevate protection
+            old_protect = wintypes.DWORD()
             if not VirtualProtectEx(self.handle, ctypes.c_void_p(address), length, PAGE_EXECUTE_READWRITE, ctypes.byref(old_protect)):
                 return False
 
@@ -319,11 +325,28 @@ class MemoryManager:
         return raw.split(b"\x00")[0].decode("latin-1", errors="ignore")
 
     def apply_patch(self, name: str, address: int, patch_bytes: bytes, orig_bytes: Optional[bytes] = None) -> bool:
-        """Applies a code/data patch and records original bytes for clean detachment."""
+        """Applies a code/data patch with pre-flight signature verification and records original bytes for clean detachment."""
         with self._lock:
+            if not self.is_attached() or not self.is_valid_user_ptr(address):
+                return False
+
+            cur = self.read_bytes(address, len(patch_bytes))
+            if not cur:
+                self.log("ERROR", f"Cannot apply patch '{name}' at 0x{address:X}: Failed reading target memory.")
+                return False
+
+            # Pre-flight signature check: Verify target opcode matches expected vanilla or already-patched bytes
+            if orig_bytes is not None and cur != orig_bytes and cur != patch_bytes:
+                self.log(
+                    "WARN",
+                    f"Pre-flight check failed for patch '{name}' at 0x{address:X}! "
+                    f"Expected original: {orig_bytes.hex().upper()} or patch: {patch_bytes.hex().upper()}, found: {cur.hex().upper()}. "
+                    "Aborting patch to prevent process instability."
+                )
+                return False
+
             if orig_bytes is None and name not in self._applied_patches:
-                cur = self.read_bytes(address, len(patch_bytes))
-                if cur and cur != patch_bytes:
+                if cur != patch_bytes:
                     orig_bytes = cur
 
             if orig_bytes and name not in self._applied_patches:
