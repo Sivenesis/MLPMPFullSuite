@@ -53,7 +53,7 @@ The Profile Editor provides comprehensive management over player progression and
 
 ### Tab 2: Fortune Shop and Store Tweaks
 The Fortune Shop and Store Tweaks tab is dedicated to character acquisition and catalog management:
-- **Fortune Shop Roster Refresh**: A clean, singular refresh action that clears the 24-hour cooldown, forces an immediate roster re-roll, sets refresh costs to 0 or 50 Gems, and guarantees 100% rare character weights. This action synchronizes Royal Club status in memory, as required by the game engine for refresh functionality.
+- **Fortune Shop Roster Refresh**: A clean, singular refresh action that clears the 24-hour cooldown. This action will force apply Royal Club status in memory, as required by the game engine for refresh functionality.
 - **Store Editor & Catalog**: Browse an offline, searchable database of 2,381 characters categorized across Ponyville, Canterlot, Sweet Apple Acres, Crystal Empire, and Klugetown. Filter by name, ID, town, currency, or price range. Apply store rotation patches to make unlisted and event-exclusive ponies buyable directly in the in-game shop.
 
 ### Modularity & Maintainability
