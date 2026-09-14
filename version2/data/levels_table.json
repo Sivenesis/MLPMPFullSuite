@@ -1,0 +1,1202 @@
+[
+  {
+    "level": 1,
+    "req_xp": 5,
+    "reward_bits": 0,
+    "reward_gems": 0
+  },
+  {
+    "level": 2,
+    "req_xp": 45,
+    "reward_bits": 100,
+    "reward_gems": 1
+  },
+  {
+    "level": 3,
+    "req_xp": 135,
+    "reward_bits": 200,
+    "reward_gems": 2
+  },
+  {
+    "level": 4,
+    "req_xp": 270,
+    "reward_bits": 300,
+    "reward_gems": 1
+  },
+  {
+    "level": 5,
+    "req_xp": 420,
+    "reward_bits": 400,
+    "reward_gems": 1
+  },
+  {
+    "level": 6,
+    "req_xp": 570,
+    "reward_bits": 500,
+    "reward_gems": 1
+  },
+  {
+    "level": 7,
+    "req_xp": 750,
+    "reward_bits": 600,
+    "reward_gems": 1
+  },
+  {
+    "level": 8,
+    "req_xp": 950,
+    "reward_bits": 700,
+    "reward_gems": 1
+  },
+  {
+    "level": 9,
+    "req_xp": 1150,
+    "reward_bits": 800,
+    "reward_gems": 2
+  },
+  {
+    "level": 10,
+    "req_xp": 1350,
+    "reward_bits": 900,
+    "reward_gems": 1
+  },
+  {
+    "level": 11,
+    "req_xp": 1600,
+    "reward_bits": 1000,
+    "reward_gems": 1
+  },
+  {
+    "level": 12,
+    "req_xp": 1950,
+    "reward_bits": 1000,
+    "reward_gems": 1
+  },
+  {
+    "level": 13,
+    "req_xp": 2350,
+    "reward_bits": 1100,
+    "reward_gems": 1
+  },
+  {
+    "level": 14,
+    "req_xp": 2850,
+    "reward_bits": 1200,
+    "reward_gems": 1
+  },
+  {
+    "level": 15,
+    "req_xp": 3450,
+    "reward_bits": 1300,
+    "reward_gems": 1
+  },
+  {
+    "level": 16,
+    "req_xp": 4100,
+    "reward_bits": 1400,
+    "reward_gems": 1
+  },
+  {
+    "level": 17,
+    "req_xp": 4800,
+    "reward_bits": 1500,
+    "reward_gems": 1
+  },
+  {
+    "level": 18,
+    "req_xp": 5550,
+    "reward_bits": 1600,
+    "reward_gems": 1
+  },
+  {
+    "level": 19,
+    "req_xp": 6350,
+    "reward_bits": 1700,
+    "reward_gems": 1
+  },
+  {
+    "level": 20,
+    "req_xp": 7150,
+    "reward_bits": 1800,
+    "reward_gems": 1
+  },
+  {
+    "level": 21,
+    "req_xp": 7950,
+    "reward_bits": 1900,
+    "reward_gems": 1
+  },
+  {
+    "level": 22,
+    "req_xp": 8750,
+    "reward_bits": 2000,
+    "reward_gems": 1
+  },
+  {
+    "level": 23,
+    "req_xp": 9550,
+    "reward_bits": 2200,
+    "reward_gems": 1
+  },
+  {
+    "level": 24,
+    "req_xp": 10450,
+    "reward_bits": 2400,
+    "reward_gems": 1
+  },
+  {
+    "level": 25,
+    "req_xp": 11350,
+    "reward_bits": 2600,
+    "reward_gems": 1
+  },
+  {
+    "level": 26,
+    "req_xp": 12250,
+    "reward_bits": 2800,
+    "reward_gems": 1
+  },
+  {
+    "level": 27,
+    "req_xp": 13250,
+    "reward_bits": 3000,
+    "reward_gems": 1
+  },
+  {
+    "level": 28,
+    "req_xp": 14250,
+    "reward_bits": 3300,
+    "reward_gems": 1
+  },
+  {
+    "level": 29,
+    "req_xp": 15250,
+    "reward_bits": 3600,
+    "reward_gems": 1
+  },
+  {
+    "level": 30,
+    "req_xp": 16350,
+    "reward_bits": 3900,
+    "reward_gems": 1
+  },
+  {
+    "level": 31,
+    "req_xp": 17450,
+    "reward_bits": 4200,
+    "reward_gems": 2
+  },
+  {
+    "level": 32,
+    "req_xp": 18550,
+    "reward_bits": 4600,
+    "reward_gems": 1
+  },
+  {
+    "level": 33,
+    "req_xp": 19850,
+    "reward_bits": 5000,
+    "reward_gems": 1
+  },
+  {
+    "level": 34,
+    "req_xp": 21150,
+    "reward_bits": 5500,
+    "reward_gems": 1
+  },
+  {
+    "level": 35,
+    "req_xp": 22650,
+    "reward_bits": 6000,
+    "reward_gems": 1
+  },
+  {
+    "level": 36,
+    "req_xp": 24150,
+    "reward_bits": 6600,
+    "reward_gems": 1
+  },
+  {
+    "level": 37,
+    "req_xp": 25650,
+    "reward_bits": 7200,
+    "reward_gems": 1
+  },
+  {
+    "level": 38,
+    "req_xp": 27650,
+    "reward_bits": 7900,
+    "reward_gems": 1
+  },
+  {
+    "level": 39,
+    "req_xp": 29650,
+    "reward_bits": 8600,
+    "reward_gems": 1
+  },
+  {
+    "level": 40,
+    "req_xp": 31850,
+    "reward_bits": 9400,
+    "reward_gems": 1
+  },
+  {
+    "level": 41,
+    "req_xp": 34050,
+    "reward_bits": 9800,
+    "reward_gems": 1
+  },
+  {
+    "level": 42,
+    "req_xp": 36450,
+    "reward_bits": 10200,
+    "reward_gems": 1
+  },
+  {
+    "level": 43,
+    "req_xp": 39150,
+    "reward_bits": 10700,
+    "reward_gems": 1
+  },
+  {
+    "level": 44,
+    "req_xp": 42350,
+    "reward_bits": 11200,
+    "reward_gems": 1
+  },
+  {
+    "level": 45,
+    "req_xp": 45850,
+    "reward_bits": 11700,
+    "reward_gems": 1
+  },
+  {
+    "level": 46,
+    "req_xp": 49550,
+    "reward_bits": 12200,
+    "reward_gems": 1
+  },
+  {
+    "level": 47,
+    "req_xp": 53550,
+    "reward_bits": 12800,
+    "reward_gems": 1
+  },
+  {
+    "level": 48,
+    "req_xp": 57750,
+    "reward_bits": 13400,
+    "reward_gems": 1
+  },
+  {
+    "level": 49,
+    "req_xp": 62250,
+    "reward_bits": 14000,
+    "reward_gems": 1
+  },
+  {
+    "level": 50,
+    "req_xp": 67250,
+    "reward_bits": 14700,
+    "reward_gems": 2
+  },
+  {
+    "level": 51,
+    "req_xp": 72350,
+    "reward_bits": 15400,
+    "reward_gems": 1
+  },
+  {
+    "level": 52,
+    "req_xp": 77850,
+    "reward_bits": 16100,
+    "reward_gems": 1
+  },
+  {
+    "level": 53,
+    "req_xp": 83350,
+    "reward_bits": 16900,
+    "reward_gems": 1
+  },
+  {
+    "level": 54,
+    "req_xp": 89150,
+    "reward_bits": 17700,
+    "reward_gems": 2
+  },
+  {
+    "level": 55,
+    "req_xp": 94950,
+    "reward_bits": 18500,
+    "reward_gems": 1
+  },
+  {
+    "level": 56,
+    "req_xp": 100950,
+    "reward_bits": 19400,
+    "reward_gems": 1
+  },
+  {
+    "level": 57,
+    "req_xp": 107450,
+    "reward_bits": 20300,
+    "reward_gems": 1
+  },
+  {
+    "level": 58,
+    "req_xp": 114450,
+    "reward_bits": 21300,
+    "reward_gems": 1
+  },
+  {
+    "level": 59,
+    "req_xp": 121950,
+    "reward_bits": 22300,
+    "reward_gems": 1
+  },
+  {
+    "level": 60,
+    "req_xp": 129950,
+    "reward_bits": 23400,
+    "reward_gems": 1
+  },
+  {
+    "level": 61,
+    "req_xp": 138450,
+    "reward_bits": 24500,
+    "reward_gems": 1
+  },
+  {
+    "level": 62,
+    "req_xp": 147450,
+    "reward_bits": 25700,
+    "reward_gems": 2
+  },
+  {
+    "level": 63,
+    "req_xp": 156950,
+    "reward_bits": 26900,
+    "reward_gems": 1
+  },
+  {
+    "level": 64,
+    "req_xp": 166950,
+    "reward_bits": 28200,
+    "reward_gems": 1
+  },
+  {
+    "level": 65,
+    "req_xp": 177450,
+    "reward_bits": 29600,
+    "reward_gems": 1
+  },
+  {
+    "level": 66,
+    "req_xp": 188450,
+    "reward_bits": 31000,
+    "reward_gems": 1
+  },
+  {
+    "level": 67,
+    "req_xp": 199950,
+    "reward_bits": 32500,
+    "reward_gems": 1
+  },
+  {
+    "level": 68,
+    "req_xp": 211950,
+    "reward_bits": 34100,
+    "reward_gems": 1
+  },
+  {
+    "level": 69,
+    "req_xp": 224450,
+    "reward_bits": 35800,
+    "reward_gems": 1
+  },
+  {
+    "level": 70,
+    "req_xp": 237450,
+    "reward_bits": 37500,
+    "reward_gems": 3
+  },
+  {
+    "level": 71,
+    "req_xp": 250950,
+    "reward_bits": 38200,
+    "reward_gems": 1
+  },
+  {
+    "level": 72,
+    "req_xp": 264950,
+    "reward_bits": 38900,
+    "reward_gems": 1
+  },
+  {
+    "level": 73,
+    "req_xp": 279450,
+    "reward_bits": 39600,
+    "reward_gems": 2
+  },
+  {
+    "level": 74,
+    "req_xp": 294450,
+    "reward_bits": 40300,
+    "reward_gems": 1
+  },
+  {
+    "level": 75,
+    "req_xp": 310050,
+    "reward_bits": 41100,
+    "reward_gems": 2
+  },
+  {
+    "level": 76,
+    "req_xp": 326250,
+    "reward_bits": 41900,
+    "reward_gems": 1
+  },
+  {
+    "level": 77,
+    "req_xp": 343050,
+    "reward_bits": 42700,
+    "reward_gems": 1
+  },
+  {
+    "level": 78,
+    "req_xp": 360450,
+    "reward_bits": 43500,
+    "reward_gems": 2
+  },
+  {
+    "level": 79,
+    "req_xp": 378450,
+    "reward_bits": 44300,
+    "reward_gems": 1
+  },
+  {
+    "level": 80,
+    "req_xp": 397770,
+    "reward_bits": 45100,
+    "reward_gems": 1
+  },
+  {
+    "level": 81,
+    "req_xp": 418410,
+    "reward_bits": 45500,
+    "reward_gems": 2
+  },
+  {
+    "level": 82,
+    "req_xp": 440370,
+    "reward_bits": 45900,
+    "reward_gems": 1
+  },
+  {
+    "level": 83,
+    "req_xp": 463650,
+    "reward_bits": 46300,
+    "reward_gems": 1
+  },
+  {
+    "level": 84,
+    "req_xp": 488250,
+    "reward_bits": 46700,
+    "reward_gems": 1
+  },
+  {
+    "level": 85,
+    "req_xp": 514170,
+    "reward_bits": 47100,
+    "reward_gems": 3
+  },
+  {
+    "level": 86,
+    "req_xp": 541410,
+    "reward_bits": 47500,
+    "reward_gems": 1
+  },
+  {
+    "level": 87,
+    "req_xp": 569970,
+    "reward_bits": 47900,
+    "reward_gems": 1
+  },
+  {
+    "level": 88,
+    "req_xp": 599850,
+    "reward_bits": 48300,
+    "reward_gems": 3
+  },
+  {
+    "level": 89,
+    "req_xp": 631050,
+    "reward_bits": 48700,
+    "reward_gems": 1
+  },
+  {
+    "level": 90,
+    "req_xp": 665418,
+    "reward_bits": 49100,
+    "reward_gems": 5
+  },
+  {
+    "level": 91,
+    "req_xp": 702954,
+    "reward_bits": 49500,
+    "reward_gems": 1
+  },
+  {
+    "level": 92,
+    "req_xp": 743658,
+    "reward_bits": 49900,
+    "reward_gems": 3
+  },
+  {
+    "level": 93,
+    "req_xp": 787530,
+    "reward_bits": 50300,
+    "reward_gems": 1
+  },
+  {
+    "level": 94,
+    "req_xp": 834570,
+    "reward_bits": 50800,
+    "reward_gems": 4
+  },
+  {
+    "level": 95,
+    "req_xp": 885570,
+    "reward_bits": 51300,
+    "reward_gems": 7
+  },
+  {
+    "level": 96,
+    "req_xp": 940530,
+    "reward_bits": 51800,
+    "reward_gems": 4
+  },
+  {
+    "level": 97,
+    "req_xp": 999450,
+    "reward_bits": 52300,
+    "reward_gems": 2
+  },
+  {
+    "level": 98,
+    "req_xp": 1062330,
+    "reward_bits": 52800,
+    "reward_gems": 6
+  },
+  {
+    "level": 99,
+    "req_xp": 1129170,
+    "reward_bits": 53300,
+    "reward_gems": 3
+  },
+  {
+    "level": 100,
+    "req_xp": 1202610,
+    "reward_bits": 53800,
+    "reward_gems": 8
+  },
+  {
+    "level": 101,
+    "req_xp": 1282650,
+    "reward_bits": 54300,
+    "reward_gems": 3
+  },
+  {
+    "level": 102,
+    "req_xp": 1369290,
+    "reward_bits": 54800,
+    "reward_gems": 4
+  },
+  {
+    "level": 103,
+    "req_xp": 1462530,
+    "reward_bits": 55300,
+    "reward_gems": 6
+  },
+  {
+    "level": 104,
+    "req_xp": 1562370,
+    "reward_bits": 55800,
+    "reward_gems": 5
+  },
+  {
+    "level": 105,
+    "req_xp": 1670130,
+    "reward_bits": 56300,
+    "reward_gems": 9
+  },
+  {
+    "level": 106,
+    "req_xp": 1785810,
+    "reward_bits": 56800,
+    "reward_gems": 3
+  },
+  {
+    "level": 107,
+    "req_xp": 1909410,
+    "reward_bits": 57300,
+    "reward_gems": 5
+  },
+  {
+    "level": 108,
+    "req_xp": 2040930,
+    "reward_bits": 57800,
+    "reward_gems": 7
+  },
+  {
+    "level": 109,
+    "req_xp": 2180370,
+    "reward_bits": 58300,
+    "reward_gems": 6
+  },
+  {
+    "level": 110,
+    "req_xp": 2329050,
+    "reward_bits": 58800,
+    "reward_gems": 10
+  },
+  {
+    "level": 111,
+    "req_xp": 2486970,
+    "reward_bits": 59300,
+    "reward_gems": 4
+  },
+  {
+    "level": 112,
+    "req_xp": 2654130,
+    "reward_bits": 59800,
+    "reward_gems": 6
+  },
+  {
+    "level": 113,
+    "req_xp": 2830530,
+    "reward_bits": 60300,
+    "reward_gems": 7
+  },
+  {
+    "level": 114,
+    "req_xp": 3016170,
+    "reward_bits": 60900,
+    "reward_gems": 8
+  },
+  {
+    "level": 115,
+    "req_xp": 3211578,
+    "reward_bits": 61500,
+    "reward_gems": 10
+  },
+  {
+    "level": 116,
+    "req_xp": 3416754,
+    "reward_bits": 62100,
+    "reward_gems": 5
+  },
+  {
+    "level": 117,
+    "req_xp": 3631698,
+    "reward_bits": 62700,
+    "reward_gems": 6
+  },
+  {
+    "level": 118,
+    "req_xp": 3856410,
+    "reward_bits": 63300,
+    "reward_gems": 7
+  },
+  {
+    "level": 119,
+    "req_xp": 4090890,
+    "reward_bits": 63900,
+    "reward_gems": 8
+  },
+  {
+    "level": 120,
+    "req_xp": 4335402,
+    "reward_bits": 64500,
+    "reward_gems": 10
+  },
+  {
+    "level": 121,
+    "req_xp": 4589946,
+    "reward_bits": 65100,
+    "reward_gems": 6
+  },
+  {
+    "level": 122,
+    "req_xp": 4854522,
+    "reward_bits": 65700,
+    "reward_gems": 7
+  },
+  {
+    "level": 123,
+    "req_xp": 5129130,
+    "reward_bits": 66300,
+    "reward_gems": 8
+  },
+  {
+    "level": 124,
+    "req_xp": 5413770,
+    "reward_bits": 66900,
+    "reward_gems": 10
+  },
+  {
+    "level": 125,
+    "req_xp": 5709498,
+    "reward_bits": 67500,
+    "reward_gems": 12
+  },
+  {
+    "level": 126,
+    "req_xp": 6016314,
+    "reward_bits": 68100,
+    "reward_gems": 7
+  },
+  {
+    "level": 127,
+    "req_xp": 6334218,
+    "reward_bits": 68700,
+    "reward_gems": 8
+  },
+  {
+    "level": 128,
+    "req_xp": 6663210,
+    "reward_bits": 69300,
+    "reward_gems": 9
+  },
+  {
+    "level": 129,
+    "req_xp": 7003290,
+    "reward_bits": 69900,
+    "reward_gems": 10
+  },
+  {
+    "level": 130,
+    "req_xp": 7354986,
+    "reward_bits": 70500,
+    "reward_gems": 12
+  },
+  {
+    "level": 131,
+    "req_xp": 7718298,
+    "reward_bits": 71200,
+    "reward_gems": 8
+  },
+  {
+    "level": 132,
+    "req_xp": 8093226,
+    "reward_bits": 71900,
+    "reward_gems": 9
+  },
+  {
+    "level": 133,
+    "req_xp": 8479770,
+    "reward_bits": 72600,
+    "reward_gems": 10
+  },
+  {
+    "level": 134,
+    "req_xp": 8877930,
+    "reward_bits": 73300,
+    "reward_gems": 11
+  },
+  {
+    "level": 135,
+    "req_xp": 9287706,
+    "reward_bits": 74000,
+    "reward_gems": 7
+  },
+  {
+    "level": 136,
+    "req_xp": 9709098,
+    "reward_bits": 74700,
+    "reward_gems": 8
+  },
+  {
+    "level": 137,
+    "req_xp": 10142106,
+    "reward_bits": 75400,
+    "reward_gems": 10
+  },
+  {
+    "level": 138,
+    "req_xp": 10586730,
+    "reward_bits": 76100,
+    "reward_gems": 12
+  },
+  {
+    "level": 139,
+    "req_xp": 11042970,
+    "reward_bits": 76800,
+    "reward_gems": 10
+  },
+  {
+    "level": 140,
+    "req_xp": 11510826,
+    "reward_bits": 77500,
+    "reward_gems": 8
+  },
+  {
+    "level": 141,
+    "req_xp": 11990298,
+    "reward_bits": 78200,
+    "reward_gems": 9
+  },
+  {
+    "level": 142,
+    "req_xp": 12481386,
+    "reward_bits": 78900,
+    "reward_gems": 11
+  },
+  {
+    "level": 143,
+    "req_xp": 12984090,
+    "reward_bits": 79600,
+    "reward_gems": 8
+  },
+  {
+    "level": 144,
+    "req_xp": 13498410,
+    "reward_bits": 80300,
+    "reward_gems": 11
+  },
+  {
+    "level": 145,
+    "req_xp": 14024346,
+    "reward_bits": 81100,
+    "reward_gems": 9
+  },
+  {
+    "level": 146,
+    "req_xp": 14561898,
+    "reward_bits": 81900,
+    "reward_gems": 10
+  },
+  {
+    "level": 147,
+    "req_xp": 15111066,
+    "reward_bits": 82700,
+    "reward_gems": 8
+  },
+  {
+    "level": 148,
+    "req_xp": 15671850,
+    "reward_bits": 83500,
+    "reward_gems": 12
+  },
+  {
+    "level": 149,
+    "req_xp": 16244250,
+    "reward_bits": 84300,
+    "reward_gems": 8
+  },
+  {
+    "level": 150,
+    "req_xp": 16828266,
+    "reward_bits": 85100,
+    "reward_gems": 10
+  },
+  {
+    "level": 151,
+    "req_xp": 17423898,
+    "reward_bits": 85900,
+    "reward_gems": 13
+  },
+  {
+    "level": 152,
+    "req_xp": 18031146,
+    "reward_bits": 86700,
+    "reward_gems": 12
+  },
+  {
+    "level": 153,
+    "req_xp": 18650010,
+    "reward_bits": 87500,
+    "reward_gems": 11
+  },
+  {
+    "level": 154,
+    "req_xp": 19280490,
+    "reward_bits": 88300,
+    "reward_gems": 12
+  },
+  {
+    "level": 155,
+    "req_xp": 19922586,
+    "reward_bits": 89100,
+    "reward_gems": 13
+  },
+  {
+    "level": 156,
+    "req_xp": 20576298,
+    "reward_bits": 89900,
+    "reward_gems": 10
+  },
+  {
+    "level": 157,
+    "req_xp": 21241626,
+    "reward_bits": 90700,
+    "reward_gems": 13
+  },
+  {
+    "level": 158,
+    "req_xp": 21918570,
+    "reward_bits": 91600,
+    "reward_gems": 15
+  },
+  {
+    "level": 159,
+    "req_xp": 22607130,
+    "reward_bits": 92500,
+    "reward_gems": 13
+  },
+  {
+    "level": 160,
+    "req_xp": 23307834,
+    "reward_bits": 93400,
+    "reward_gems": 10
+  },
+  {
+    "level": 161,
+    "req_xp": 24020682,
+    "reward_bits": 94300,
+    "reward_gems": 13
+  },
+  {
+    "level": 162,
+    "req_xp": 24745674,
+    "reward_bits": 95200,
+    "reward_gems": 14
+  },
+  {
+    "level": 163,
+    "req_xp": 25482810,
+    "reward_bits": 96100,
+    "reward_gems": 15
+  },
+  {
+    "level": 164,
+    "req_xp": 26232090,
+    "reward_bits": 97000,
+    "reward_gems": 15
+  },
+  {
+    "level": 165,
+    "req_xp": 26993514,
+    "reward_bits": 97900,
+    "reward_gems": 17
+  },
+  {
+    "level": 166,
+    "req_xp": 27767082,
+    "reward_bits": 98800,
+    "reward_gems": 15
+  },
+  {
+    "level": 167,
+    "req_xp": 28552794,
+    "reward_bits": 99700,
+    "reward_gems": 14
+  },
+  {
+    "level": 168,
+    "req_xp": 29350650,
+    "reward_bits": 100600,
+    "reward_gems": 16
+  },
+  {
+    "level": 169,
+    "req_xp": 30160650,
+    "reward_bits": 101600,
+    "reward_gems": 15
+  },
+  {
+    "level": 170,
+    "req_xp": 30982794,
+    "reward_bits": 102600,
+    "reward_gems": 17
+  },
+  {
+    "level": 171,
+    "req_xp": 31817082,
+    "reward_bits": 103600,
+    "reward_gems": 15
+  },
+  {
+    "level": 172,
+    "req_xp": 32663514,
+    "reward_bits": 104600,
+    "reward_gems": 14
+  },
+  {
+    "level": 173,
+    "req_xp": 33522090,
+    "reward_bits": 105600,
+    "reward_gems": 16
+  },
+  {
+    "level": 174,
+    "req_xp": 34392810,
+    "reward_bits": 106600,
+    "reward_gems": 15
+  },
+  {
+    "level": 175,
+    "req_xp": 35275674,
+    "reward_bits": 107600,
+    "reward_gems": 17
+  },
+  {
+    "level": 176,
+    "req_xp": 36170682,
+    "reward_bits": 108600,
+    "reward_gems": 15
+  },
+  {
+    "level": 177,
+    "req_xp": 37077834,
+    "reward_bits": 109600,
+    "reward_gems": 14
+  },
+  {
+    "level": 178,
+    "req_xp": 37997130,
+    "reward_bits": 110600,
+    "reward_gems": 16
+  },
+  {
+    "level": 179,
+    "req_xp": 38928570,
+    "reward_bits": 111700,
+    "reward_gems": 15
+  },
+  {
+    "level": 180,
+    "req_xp": 39872154,
+    "reward_bits": 112800,
+    "reward_gems": 17
+  },
+  {
+    "level": 181,
+    "req_xp": 40827882,
+    "reward_bits": 113900,
+    "reward_gems": 16
+  },
+  {
+    "level": 182,
+    "req_xp": 41795754,
+    "reward_bits": 115000,
+    "reward_gems": 15
+  },
+  {
+    "level": 183,
+    "req_xp": 42775770,
+    "reward_bits": 116100,
+    "reward_gems": 16
+  },
+  {
+    "level": 184,
+    "req_xp": 43767930,
+    "reward_bits": 117200,
+    "reward_gems": 15
+  },
+  {
+    "level": 185,
+    "req_xp": 44772234,
+    "reward_bits": 118300,
+    "reward_gems": 17
+  },
+  {
+    "level": 186,
+    "req_xp": 45788682,
+    "reward_bits": 119400,
+    "reward_gems": 16
+  },
+  {
+    "level": 187,
+    "req_xp": 46817274,
+    "reward_bits": 120500,
+    "reward_gems": 15
+  },
+  {
+    "level": 188,
+    "req_xp": 47858010,
+    "reward_bits": 121700,
+    "reward_gems": 17
+  },
+  {
+    "level": 189,
+    "req_xp": 48910890,
+    "reward_bits": 122900,
+    "reward_gems": 15
+  },
+  {
+    "level": 190,
+    "req_xp": 49975914,
+    "reward_bits": 124100,
+    "reward_gems": 18
+  },
+  {
+    "level": 191,
+    "req_xp": 51053082,
+    "reward_bits": 125300,
+    "reward_gems": 16
+  },
+  {
+    "level": 192,
+    "req_xp": 52142394,
+    "reward_bits": 126500,
+    "reward_gems": 16
+  },
+  {
+    "level": 193,
+    "req_xp": 53243850,
+    "reward_bits": 127700,
+    "reward_gems": 17
+  },
+  {
+    "level": 194,
+    "req_xp": 54357450,
+    "reward_bits": 128900,
+    "reward_gems": 16
+  },
+  {
+    "level": 195,
+    "req_xp": 55483194,
+    "reward_bits": 130100,
+    "reward_gems": 18
+  },
+  {
+    "level": 196,
+    "req_xp": 56621082,
+    "reward_bits": 131400,
+    "reward_gems": 17
+  },
+  {
+    "level": 197,
+    "req_xp": 57771114,
+    "reward_bits": 132700,
+    "reward_gems": 16
+  },
+  {
+    "level": 198,
+    "req_xp": 58933290,
+    "reward_bits": 134000,
+    "reward_gems": 17
+  },
+  {
+    "level": 199,
+    "req_xp": 60107610,
+    "reward_bits": 135300,
+    "reward_gems": 16
+  },
+  {
+    "level": 200,
+    "req_xp": 0,
+    "reward_bits": 136600,
+    "reward_gems": 20
+  }
+]

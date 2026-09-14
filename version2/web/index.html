@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MLPMP Full Suite v2.0.4</title>
+  <link rel="stylesheet" href="/css/suite.css">
+</head>
+<body>
+
+  <!-- Header Bar (Aligned to 1400px width) -->
+  <header class="header-bar">
+    <div class="header-inner">
+      <div class="header-top">
+        <div class="brand-section">
+          <span class="brand-title">MLPMP Full Suite</span>
+          <span class="meta-pill" id="suite-version-badge">v2.0.4</span>
+          <span class="meta-pill">GAME v11.4.1a</span>
+          <span class="meta-pill" id="meta-pid">PID ---</span>
+          <span class="meta-pill status-detached" id="status-badge">DETACHED</span>
+        </div>
+
+        <div class="header-actions">
+          <button id="btn-attach" class="btn btn-success">Attach to Process</button>
+          <button id="btn-detach" class="btn" disabled>Detach</button>
+          <button id="btn-open-logs" class="btn">Debug Console</button>
+          <button id="btn-close-suite" class="btn btn-close-app" title="Safely detach and exit Suite">✕</button>
+        </div>
+      </div>
+
+      <div class="header-legal-notice red-box">
+        <strong>Legal Notice:</strong> The developers of this Suite claim no rights or ownership of any copyrighted materials, trademarks, or assets belonging to Gameloft, Hasbro, or their respective right owners. This Suite is provided strictly for personal interoperability and educational analysis.
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="tabs-container">
+    <button class="tab-btn active" data-tab="tab-profile">Profile Editor</button>
+    <button class="tab-btn" data-tab="tab-store">Fortune Shop & Store Tweaks</button>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="main-wrapper">
+
+    <!-- Version Mismatch Banner -->
+    <div id="mismatch-banner" class="mismatch-banner">
+      <div class="mismatch-title">Game Version Mismatch Detected</div>
+      <div class="mismatch-body">
+        The attached game client build (<strong id="mismatch-detected-version">Unknown</strong>) does not match the target build for this Suite (<strong id="mismatch-expected-version">v11.4.1a</strong>). Offsets and structure layouts may have shifted. Using this Suite on an untested game build is discouraged and may cause memory instability or game crashes. Please check GitHub (<a href="https://github.com/Sivenesis/MLPMPFullSuite" target="_blank" class="footer-link">https://github.com/Sivenesis/MLPMPFullSuite</a>) for updates.
+      </div>
+      <div class="mismatch-actions">
+        <a href="https://github.com/Sivenesis/MLPMPFullSuite" target="_blank" class="btn">Check GitHub for Updates</a>
+        <button id="btn-mismatch-override" class="btn btn-danger">I UNDERSTAND THE RISKS AND WANT TO CONTINUE</button>
+      </div>
+    </div>
+
+    <!-- TAB 1: PROFILE EDITOR -->
+    <section id="tab-profile" class="tab-panel active">
+      <div class="cards-grid">
+
+        <!-- Card 1: Level & XP Editor -->
+        <div class="card" id="card-level">
+          <div class="card-title">
+            <span>Level & XP Editor</span>
+            <span class="meta-pill" id="level-badge-display">Lvl ---</span>
+          </div>
+          <p class="card-desc">Edit player progression level and experience points with automated synchronization.</p>
+          
+          <div class="level-inputs-stacked">
+            <!-- Decoupled Field 1: Level -->
+            <div class="level-input-row">
+              <label for="input-level">Player Level (1 - 200)</label>
+              <div class="input-with-btn">
+                <input type="number" id="input-level" class="form-control" min="1" max="200" value="1" placeholder="Level (1-200)">
+                <button type="button" id="btn-apply-level" class="btn btn-primary">Apply Level</button>
+              </div>
+              <span class="field-hint">Applying level automatically calculates and sets the matching required XP.</span>
+            </div>
+
+            <!-- Decoupled Field 2: XP -->
+            <div class="level-input-row">
+              <label for="input-xp">Experience Points (XP)</label>
+              <div class="input-with-btn">
+                <input type="number" id="input-xp" class="form-control" min="0" value="0" placeholder="Experience points">
+                <button type="button" id="btn-apply-xp" class="btn btn-secondary">Apply XP</button>
+              </div>
+              <span class="field-hint">Applying custom XP automatically synchronizes the corresponding level.</span>
+            </div>
+          </div>
+
+          <!-- Dropdown Window: Levels and Required XP Table -->
+          <div class="xp-dropdown-section" id="xp-dropdown-section">
+            <button type="button" class="btn-toggle-dropdown" id="btn-toggle-xp-dropdown">
+              <span>Levels & Required XP Reference (1 - 200)</span>
+              <span class="dropdown-chevron" id="xp-chevron">▼</span>
+            </button>
+            <div class="xp-dropdown-content" id="xp-dropdown-content" style="display: none;">
+              <div class="xp-table-filter-bar">
+                <input type="text" id="xp-table-filter" class="form-control" placeholder="Search level (e.g. 50, 100, 200)..." spellcheck="false" autocomplete="off">
+              </div>
+              <div class="xp-table-scroll">
+                <table class="xp-reference-table">
+                  <thead>
+                    <tr>
+                      <th>Lvl</th>
+                      <th>Req XP</th>
+                      <th>Bit Reward</th>
+                      <th>Gem Reward</th>
+                      <th>Quick Set</th>
+                    </tr>
+                  </thead>
+                  <tbody id="xp-reference-body">
+                    <!-- Populated dynamically via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Currency Editor -->
+        <div class="card" style="grid-column: span 2;">
+          <div class="card-title">
+            <span>Currency Editor</span>
+          </div>
+          <p class="card-desc">Primary currencies and the 6 Element Shards encrypted containers in live memory.</p>
+          <div class="form-grid grid-3">
+            <div class="form-group">
+              <label for="input-bits">Bits</label>
+              <input type="number" id="input-bits" class="form-control" min="0" value="0">
+            </div>
+            <div class="form-group">
+              <label for="input-gems">Gems</label>
+              <input type="number" id="input-gems" class="form-control" min="0" value="0">
+            </div>
+            <div class="form-group">
+              <label for="input-hearts">Hearts</label>
+              <input type="number" id="input-hearts" class="form-control" min="0" value="0">
+            </div>
+            <div class="form-group">
+              <label for="input-friendship-hearts">Friendship Hearts</label>
+              <input type="number" id="input-friendship-hearts" class="form-control" min="0" value="0">
+            </div>
+            <div class="form-group">
+              <label for="input-shard-loyalty">Loyalty Shards</label>
+              <input type="number" id="input-shard-loyalty" class="form-control" min="0" value="0">
+            </div>
+            <div class="form-group">
+              <label for="input-shard-kindness">Kindness Shards</label>
+              <input type="number" id="input-shard-kindness" class="form-control" min="0" value="0">
+            </div>
+            <div class="form-group">
+              <label for="input-shard-honesty">Honesty Shards</label>
+              <input type="number" id="input-shard-honesty" class="form-control" min="0" value="0">
+            </div>
+            <div class="form-group">
+              <label for="input-shard-generosity">Generosity Shards</label>
+              <input type="number" id="input-shard-generosity" class="form-control" min="0" value="0">
+            </div>
+            <div class="form-group">
+              <label for="input-shard-laughter">Laughter Shards</label>
+              <input type="number" id="input-shard-laughter" class="form-control" min="0" value="0">
+            </div>
+            <div class="form-group">
+              <label for="input-shard-magic">Magic Shards</label>
+              <input type="number" id="input-shard-magic" class="form-control" min="0" value="0">
+            </div>
+          </div>
+          <div class="card-actions">
+            <button id="btn-apply-currencies" class="btn btn-primary">Apply Currencies</button>
+            <button id="btn-max-currencies" class="btn">Populate Max Values</button>
+          </div>
+        </div>
+
+        <!-- Card 3: Profile Customizations -->
+        <div class="card">
+          <div class="card-title">
+            <span>Profile Customizations</span>
+            <span class="meta-pill" id="profile-status-badge">---</span>
+          </div>
+          <p class="card-desc">Unlocks all 743 customization items: 507 Avatars, 95 Avatar Frames, 50 Backgrounds, 48 Background Frames, and 43 Cutie Marks.</p>
+          <div class="card-actions">
+            <button id="btn-unlock-customizations" class="btn btn-primary">Unlock All Customizations</button>
+            <button id="btn-lock-customizations" class="btn">Revert to Vanilla</button>
+          </div>
+        </div>
+
+        <!-- Card 4: Pony Editor: Costumes & Crafting Materials -->
+        <div class="card">
+          <div class="card-title">
+            <span>Pony Editor</span>
+            <span class="meta-pill" id="costumes-status-badge">---</span>
+          </div>
+          <p class="card-desc">Unlock all pony costume sets and manage boutique crafting materials.</p>
+
+          <div style="margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle);">
+            <button id="btn-toggle-costumes" class="btn btn-primary" style="width: 100%;">Unlock All Costumes (Sets)</button>
+          </div>
+
+          <label style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 8px;">Crafting Materials</label>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="input-mat-pins">Pins</label>
+              <input type="number" id="input-mat-pins" class="form-control" min="0" value="0">
+            </div>
+            <div class="form-group">
+              <label for="input-mat-buttons">Buttons</label>
+              <input type="number" id="input-mat-buttons" class="form-control" min="0" value="0">
+            </div>
+            <div class="form-group">
+              <label for="input-mat-twine">Twine</label>
+              <input type="number" id="input-mat-twine" class="form-control" min="0" value="0">
+            </div>
+            <div class="form-group">
+              <label for="input-mat-ribbons">Ribbons</label>
+              <input type="number" id="input-mat-ribbons" class="form-control" min="0" value="0">
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+              <label for="input-mat-bows">Bows</label>
+              <input type="number" id="input-mat-bows" class="form-control" min="0" value="0">
+            </div>
+          </div>
+          <div class="card-actions">
+            <button id="btn-apply-materials" class="btn btn-primary">Apply Materials</button>
+            <button id="btn-max-materials" class="btn">Max (9,999)</button>
+          </div>
+        </div>
+
+        <!-- Card 5: Group Quests Keys (Decoupled) -->
+        <div class="card">
+          <div class="card-title">
+            <span>Group Quests Keys</span>
+          </div>
+          <p class="card-desc">Edit available bonus keys for Group Quests rewards chests.</p>
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label for="input-gq-keys">Group Quest Keys (Token_GQ_bonus)</label>
+            <input type="number" id="input-gq-keys" class="form-control" min="0" value="0">
+          </div>
+          <div class="card-actions">
+            <button id="btn-apply-gq-keys" class="btn btn-primary">Apply Keys</button>
+          </div>
+        </div>
+
+        <!-- Card 6: Active Boosters -->
+        <div class="card">
+          <div class="card-title">
+            <span>Active Boosters</span>
+          </div>
+          <p class="card-desc">Configure duration timers and multipliers for active XP and Bits boosters.</p>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="input-booster-xp-time">XP Time Remaining (sec)</label>
+              <input type="number" id="input-booster-xp-time" class="form-control" min="0" step="1" value="0">
+            </div>
+            <div class="form-group">
+              <label for="input-booster-bits-time">Bits Time Remaining (sec)</label>
+              <input type="number" id="input-booster-bits-time" class="form-control" min="0" step="1" value="0">
+            </div>
+            <div class="form-group">
+              <label for="input-booster-xp-mult">XP Multiplier</label>
+              <input type="number" id="input-booster-xp-mult" class="form-control" min="1" step="0.1" value="1.0">
+            </div>
+            <div class="form-group">
+              <label for="input-booster-bits-mult">Bits Multiplier</label>
+              <input type="number" id="input-booster-bits-mult" class="form-control" min="1" step="0.1" value="1.0">
+            </div>
+          </div>
+          <div class="card-actions">
+            <button id="btn-apply-boosters" class="btn btn-primary">Apply Boosters</button>
+            <button id="btn-preset-boosters" class="btn">Set 24h 2.0x</button>
+          </div>
+        </div>
+
+        <!-- Card 7: Find a Pair Game -->
+        <div class="card">
+          <div class="card-title">
+            <span>Find a Pair Game</span>
+            <span class="meta-pill" id="pair-status-badge">WAITING FOR GAME</span>
+          </div>
+          <p class="card-desc">Control minigame countdown timer and score multipliers in active sessions.</p>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="input-pair-timer">Timer (seconds)</label>
+              <input type="number" id="input-pair-timer" class="form-control" min="0" step="1" value="999">
+              <label class="checkbox-group" style="margin-top: 6px;">
+                <input type="checkbox" id="checkbox-freeze-pair-timer">
+                <span>Freeze Timer</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label for="input-pair-multiplier">Score Multiplier</label>
+              <input type="number" id="input-pair-multiplier" class="form-control" min="1" step="1" value="10">
+              <label class="checkbox-group" style="margin-top: 6px;">
+                <input type="checkbox" id="checkbox-freeze-pair-multiplier">
+                <span>Freeze Multiplier</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="select-pair-mult-mode">Multiplier Freeze Mode</label>
+            <select id="select-pair-mult-mode" class="form-control">
+              <option value="freeze">Strict Lock (Fixed Multiplier)</option>
+              <option value="deny_decrease">Deny Decreasing (Grows Naturally, Ignores Drops)</option>
+            </select>
+          </div>
+
+          <div class="card-actions">
+            <button id="btn-apply-pair-timer" class="btn btn-primary">Apply Timer</button>
+            <button id="btn-apply-pair-multiplier" class="btn btn-primary">Apply Multiplier</button>
+          </div>
+        </div>
+
+        <!-- Card 8: Ferris Wheel Cooldown Reset -->
+        <div class="card">
+          <div class="card-title">
+            <span>Ferris Wheel Cooldown</span>
+            <span class="meta-pill" id="ferris-status-badge">---</span>
+          </div>
+          <p class="card-desc">Bypass the 1-hour wait timer to make free spins immediately accessible.</p>
+          <div class="card-actions">
+            <button id="btn-reset-ferris-wheel" class="btn btn-primary">Reset Cooldown (Instant Free Spin)</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 2: FORTUNE SHOP & STORE TWEAKS -->
+    <section id="tab-store" class="tab-panel">
+
+      <!-- Section 1: Fortune Shop Refresh (Concise) -->
+      <div class="card" style="margin-bottom: 20px;">
+        <div class="card-title">
+          <span>Fortune Shop Refresh</span>
+          <span class="meta-pill" id="fortune-rc-badge">---</span>
+        </div>
+        <div class="notice-box">
+          Notice: Performing a Fortune Shop refresh clears the 24-hour shop cooldown timer instantly, rolls a fresh roster, and forces active Royal Club tier status required natively by the game engine.
+        </div>
+        <div class="card-actions" style="margin-top: 12px;">
+          <button id="btn-refresh-fortune-shop" class="btn btn-primary">Refresh Fortune Shop Now</button>
+        </div>
+      </div>
+
+      <!-- Section 2: Store Rotation & Code Hooks -->
+      <div class="card" style="margin-bottom: 20px;">
+        <div class="card-title">
+          <span>Store Rotation & Purchase Hooks</span>
+          <span class="meta-pill" id="store-hooks-badge">0/8 HOOKS ACTIVE</span>
+        </div>
+        <p class="card-desc">
+          Applies 8 master in-place memory hooks (rotation XML bypass, buyability enabler, Scaleform action gate, currency type resolver) while enforcing pure vanilla town store section isolation at 0x6C9600.
+        </p>
+        <div class="card-actions" style="margin-top: 12px; gap: 10px;">
+          <button id="btn-apply-store-hooks" class="btn btn-primary">Apply Store Code Hooks (8/8)</button>
+          <button id="btn-revert-store-hooks" class="btn">Revert Store Hooks</button>
+        </div>
+      </div>
+
+      <!-- Section 3: In-Game Store Pony Selection & Catalog Manager -->
+      <section class="catalog-section" id="catalog-section">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <h2 style="font-size: 13px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin: 0; color: var(--text-primary);">IN-GAME STORE PONY SELECTION &amp; CATALOG MANAGER</h2>
+            <span class="game-version-pill" id="game-version-badge">CLIENT: v11.4.1a</span>
+            <span class="mode-pill" id="network-mode-badge">STRICT OFFLINE (LOCAL RAM &amp; ASSETS)</span>
+          </div>
+          <div class="section-header-badges">
+            <span class="catalog-stat-badge" id="catalog-selection-summary">SELECTED: 2,381 / 2,381 PONIES</span>
+            <button type="button" class="btn btn-rescan" id="btn-rescan-ram" title="Re-read live game RAM and update local database">RE-SCAN FROM RAM</button>
+          </div>
+        </div>
+
+        <!-- Catalog Toolbar: Town Tabs, Search, and Action Presets -->
+        <div class="catalog-toolbar">
+          <!-- Filters Row: Town Tabs + Status Filter (All / Enabled / Disabled) -->
+          <div class="filters-row">
+            <div class="town-tabs" id="town-filter-tabs">
+              <button type="button" class="town-tab active" data-zone="ALL">ALL TOWNS (<span id="count-zone-all">2381</span>)</button>
+              <button type="button" class="town-tab" data-zone="0">PONYVILLE (<span id="count-zone-0">1696</span>)</button>
+              <button type="button" class="town-tab" data-zone="1">CANTERLOT (<span id="count-zone-1">312</span>)</button>
+              <button type="button" class="town-tab" data-zone="2">S.A. ACRES (<span id="count-zone-2">229</span>)</button>
+              <button type="button" class="town-tab" data-zone="4">CRYSTAL EMPIRE (<span id="count-zone-4">104</span>)</button>
+              <button type="button" class="town-tab" data-zone="6">KLUGETOWN (<span id="count-zone-6">40</span>)</button>
+            </div>
+
+            <div class="status-filter-group" id="status-filter-tabs">
+              <button type="button" class="status-tab active" data-status="ALL">ALL STATUS</button>
+              <button type="button" class="status-tab status-tab-enabled" data-status="ENABLED">ENABLED (<span id="count-status-enabled">2381</span>)</button>
+              <button type="button" class="status-tab status-tab-disabled" data-status="DISABLED">DISABLED (<span id="count-status-disabled">0</span>)</button>
+            </div>
+          </div>
+
+          <!-- Real-Time Search & Selection Presets -->
+          <div class="catalog-search-row">
+            <div class="search-input-wrap">
+              <span class="search-icon">&gt;</span>
+              <input type="text" id="catalog-search-input" placeholder="Filter by pony name or internal ID (e.g. Twilight, Celestia, 8-Bit)..." autocomplete="off" spellcheck="false">
+              <button type="button" class="btn-clear-search" id="btn-clear-search" title="Clear search">&times;</button>
+            </div>
+
+            <div class="catalog-action-presets">
+              <button type="button" class="preset-btn btn-select-search" id="btn-select-search" style="display: none;">SELECT SEARCH (<span id="btn-select-search-count">0</span>)</button>
+              <button type="button" class="preset-btn" id="btn-select-all">SELECT ALL (2,381)</button>
+              <button type="button" class="preset-btn" id="btn-select-none">CLEAR ALL</button>
+              <button type="button" class="preset-btn" id="btn-select-current-town">CURRENT TOWN ONLY</button>
+              <button type="button" class="preset-btn" id="btn-invert-selection">INVERT</button>
+              <button type="button" class="btn btn-apply-selection" id="btn-apply-selection">
+                APPLY SELECTION TO STORE (<span id="btn-apply-count">2,381</span>)
+              </button>
+            </div>
+          </div>
+
+          <div class="catalog-banner-tip">
+            <span class="tip-badge">SHELF SYNC</span>
+            <span class="tip-text">After clicking <b>APPLY SELECTION TO STORE</b>, the store shelf in RAM is updated immediately. In-game, switch store tabs or reopen the store to view your custom shelf.</span>
+          </div>
+        </div>
+
+        <!-- Virtualized / Paged Cards Grid -->
+        <div class="catalog-grid-wrap">
+          <div class="catalog-grid" id="catalog-grid">
+            <div class="catalog-loading">Loading 2,381 ponies from local database...</div>
+          </div>
+        </div>
+
+        <!-- Catalog Footer & Pagination Info -->
+        <div class="catalog-footer">
+          <div class="catalog-footer-left">
+            Showing <span id="showing-count">0</span> of <span id="matching-count">0</span> matching ponies (<span id="active-store-count">0</span> active in in-game store)
+          </div>
+          <div class="catalog-footer-right" id="pagination-controls">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </section>
+
+    </section>
+
+  </main>
+
+  <!-- Bottom Footer -->
+  <footer class="footer-bar">
+    MLPMP Full Suite v2.0.4 — Check GitHub for updates: 
+    <a href="https://github.com/Sivenesis/MLPMPFullSuite" target="_blank" class="footer-link">https://github.com/Sivenesis/MLPMPFullSuite</a>
+  </footer>
+
+  <!-- Toast Container (Bottom-Right) -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Debug Log Console Modal -->
+  <div id="log-modal" class="modal-backdrop">
+    <div class="modal-window">
+      <div class="modal-header">
+        <span class="modal-title">Internal Debug Console & Memory Log</span>
+        <button id="btn-close-modal" class="btn" style="padding: 2px 8px;">Close</button>
+      </div>
+      <div class="modal-body" id="log-entries">
+        <!-- Live log stream -->
+      </div>
+      <div class="modal-footer">
+        <label class="checkbox-group" style="margin-bottom: 0;">
+          <input type="checkbox" id="log-autoscroll" checked>
+          <span>Auto-Scroll to Latest</span>
+        </label>
+        <button id="btn-clear-logs" class="btn">Clear Logs</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/js/toast.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/logs.js"></script>
+  <script src="/js/store.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

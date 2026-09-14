@@ -1,0 +1,21 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local Runtime Logs
+logs/
+*.log
+
+# Extracted Asset Cache (rebuilt automatically on launch from assets_part*.zip)
+web/assets/portraits/*.png
+
+# OS metadata
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# IDE / Editor Files
+.vscode/
+.idea/
+*.swp
