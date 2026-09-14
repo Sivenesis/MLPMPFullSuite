@@ -17,7 +17,7 @@ A lightweight, non-invasive, live RAM memory editor and trainer Suite for *My Li
 - **Find a Pair Minigame**: Freeze game timer and score multiplier, including a 'deny decrease' mode allowing multipliers to grow naturally while ignoring drops.
 - **Ferris Wheel Cooldown**: Instant bypass of the 6-hour wait timer for immediate free spin.
 - **Fortune Shop Refresh**: Instant roster re-roll with zero gem cost, 24-hour cooldown bypass.
-- **Store Editor & Catalog**: Searchable 2,381-character catalog with town, combined with store rotation patches for direct purchases.
+- **Store Editor & Catalog**: Searchable 2,381-character catalog, combined with store rotation patches for enabling purchases.
 
 ---
 
@@ -54,7 +54,7 @@ The Profile Editor provides comprehensive management over player progression and
 ### Tab 2: Fortune Shop and Store Tweaks
 The Fortune Shop and Store Tweaks tab is dedicated to character acquisition and catalog management:
 - **Fortune Shop Roster Refresh**: A clean, singular refresh action that clears the 24-hour cooldown. This action will force apply Royal Club status in memory, as required by the game engine for refresh functionality.
-- **Store Editor & Catalog**: Browse an offline, searchable database of 2,381 characters categorized across Ponyville, Canterlot, Sweet Apple Acres, Crystal Empire, and Klugetown. Filter by name, ID, town, currency, or price range. Apply store rotation patches to make unlisted and event-exclusive ponies buyable directly in the in-game shop.
+- **Store Editor & Catalog**: Browse an offline, searchable database of 2,381 characters categorized across Ponyville, Canterlot, Sweet Apple Acres, Crystal Empire, and Klugetown. Filter by name, ID or town. Apply store rotation patches to make unlisted and event-exclusive ponies buyable directly in the in-game shop.
 
 ### Modularity & Maintainability
 The Suite features a decoupled architecture where core Win32 memory routines (`core/memory.py`), memory mappings (`core/offsets.py`), and individual mechanic handlers (`mechanics/`) are isolated from the server and browser interface. When new game updates are released, maintainers and AI agents can adapt the Suite simply by updating centralized offset definitions without touching frontend or server code.
