@@ -10,14 +10,14 @@ A lightweight, non-invasive, live RAM memory editor and trainer Suite for *My Li
 - **Currency Editor**: Real-time balance editing for Bits, Gems, Hearts, and Friendship Hearts.
 - **Element Shards Editor**: Direct editing for all six Element Shards (Loyalty, Kindness, Honesty, Generosity, Laughter, Magic).
 - **Profile Customizations**: One-click live unlock for all 743 customization items (507 Avatars, 95 Avatar Frames, 50 Backgrounds, 48 Background Frames, 43 Cutie Marks).
-- **Pony Editor (Costumes & Sets)**: Unlock all pony costume sets and individual pieces via live ownership gates.
-- **Crafting Materials**: Set quantities for all boutique materials (Pins, Buttons, Twine, Ribbons, Bows).
+- **Pony Editor (Costumes & Sets)**: Unlock all pony costume sets and individual pieces.
+- **Crafting Materials**: Set quantities for all materials (Pins, Buttons, Twine, Ribbons, Bows).
 - **Group Quests Keys**: Modify available bonus keys for Group Quest rewards chests.
 - **Active Boosters**: Adjust duration timers and multiplier ratios for active XP and Bits boosters.
 - **Find a Pair Minigame**: Freeze game timer and score multiplier, including a 'deny decrease' mode allowing multipliers to grow naturally while ignoring drops.
-- **Ferris Wheel Cooldown**: Instant bypass of the 1-hour wait timer for immediate free spins.
-- **Fortune Shop Refresh**: Instant roster re-roll with zero gem cost, 24-hour cooldown bypass, and synchronized Royal Club tier status.
-- **Store Editor & Catalog**: Searchable 2,381-character catalog with town, currency, and price filters, combined with store rotation patches for free or direct purchases.
+- **Ferris Wheel Cooldown**: Instant bypass of the 6-hour wait timer for immediate free spin.
+- **Fortune Shop Refresh**: Instant roster re-roll with zero gem cost, 24-hour cooldown bypass.
+- **Store Editor & Catalog**: Searchable 2,381-character catalog with town, combined with store rotation patches for direct purchases.
 
 ---
 
