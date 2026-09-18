@@ -1,12 +1,12 @@
 # Reverse-Engineering & Research Documentation
-## Target Build: *My Little Pony: Magic Princess* (Windows x64 / v11.4.1a)
+## Target Build: *My Little Pony: Magic Princess* (Windows x64 / v11.4.2a)
 ### MLPMP Full Suite Architecture & Technical Reference
 
 ---
 
 ## 1. Executive Summary & Mission Statement
 
-This document serves as the permanent, exhaustive technical specification and reverse-engineering reference for the Windows x64 PC client of *My Little Pony: Magic Princess* (Gameloft / Hasbro), with primary focus on build **`v11.4.1a`** and forward compatibility with future updates.
+This document serves as the permanent, exhaustive technical specification and reverse-engineering reference for the Windows x64 PC client of *My Little Pony: Magic Princess* (Gameloft / Hasbro), with primary focus on build **`v11.4.2a`** and forward compatibility with future updates.
 
 Its purpose is to provide researchers, software engineers, modders, and autonomous AI agents with a comprehensive, mathematically rigorous guide to:
 1. The internal runtime memory layout of the game engine.
@@ -145,19 +145,19 @@ $$\text{Value} = \text{ROR32}(v_1 \oplus k_1, 5)$$
 
 All gameplay systems are anchored to global singleton manager pointers located in the `.data` and `.bss` sections of `MyLittlePony_x64.exe`.
 
-### Singleton Pointers Table (v11.4.1a)
+### Singleton Pointers Table (v11.4.2a)
 
 | Symbol / Manager Name | RVA | Type | Description |
 | :--- | :--- | :--- | :--- |
-| `RVA_PLAYER_MANAGER` | `0x1A85EE0` | `PlayerManager*` | Root inventory, currencies, crafting, tokens, boosters, Royal Club |
-| `RVA_LEVEL_MANAGER` | `0x1A76CA8` | `PlayerLevelManager*` | Progression level, XP, required milestone XP, table pointer |
-| `RVA_PONY_PARTS_MGR` | `0x1A788B8` | `PonyPartsManager*` | Costume pieces, boutique outfits, fashion ownership |
-| `RVA_STATE_MANAGER` | `0x1A74338` | `StateManager*` | Game state machine linked list (Find a Pair, minigames) |
-| `RVA_FSM_POINTER` | `0x1A84318` | `FortuneShopManager**` | Double pointer to Fortune Shop controller |
-| `RVA_SHOP_CONTROLLER` | `0x1A87740` | `ShopManager*` | Master character catalog array (2,381 ponies), rotation shelves |
-| `RVA_GAME_STATE` | `0x1AD69F0` | `GameState*` | Global game frame counters, engine state flags |
-| `RVA_UI_INVALIDATE` | `0x1A8B7A0` | `uint8_t*` | Global UI cache invalidation flag (forces Scaleform repaint) |
-| `RVA_TOWN_CONTROLLER` | `0x1A86DE8` | `TownManager*` | Zone metadata, town boundaries, placement restrictions |
+| `RVA_PLAYER_MANAGER` | `0x1A86EE0` | `PlayerManager*` | Root inventory, currencies, crafting, tokens, boosters, Royal Club |
+| `RVA_LEVEL_MANAGER` | `0x1A77CA8` | `PlayerLevelManager*` | Progression level, XP, required milestone XP, table pointer |
+| `RVA_PONY_PARTS_MGR` | `0x1A798B8` | `PonyPartsManager*` | Costume pieces, boutique outfits, fashion ownership |
+| `RVA_STATE_MANAGER` | `0x1A75338` | `StateManager*` | Game state machine linked list (Find a Pair, minigames) |
+| `RVA_FSM_POINTER` | `0x1A85318` | `FortuneShopManager**` | Double pointer to Fortune Shop controller |
+| `RVA_SHOP_CONTROLLER` | `0x1A88740` | `ShopManager*` | Master character catalog array (2,381 ponies), rotation shelves |
+| `RVA_GAME_STATE` | `0x1AD79F0` | `GameState*` | Global game frame counters, engine state flags |
+| `RVA_UI_INVALIDATE` | `0x1A8C7A0` | `uint8_t*` | Global UI cache invalidation flag (forces Scaleform repaint) |
+| `RVA_TOWN_CONTROLLER` | `0x1A87DE8` | `TownManager*` | Zone metadata, town boundaries, placement restrictions |
 
 ---
 
@@ -165,7 +165,7 @@ All gameplay systems are anchored to global singleton manager pointers located i
 
 ### 5.1 Player Progression: Level & Experience Points
 
-#### Struct Layout: `PlayerLevelManager` (at `[ModuleBase + 0x1A76CA8]`)
+#### Struct Layout: `PlayerLevelManager` (at `[ModuleBase + 0x1A77CA8]`)
 ```
 +0x00: Container20 CurrentXP      (Current total cumulative XP)
 +0x14: Container20 RequiredXP     (Threshold XP needed for next level up)
@@ -177,7 +177,7 @@ All gameplay systems are anchored to global singleton manager pointers located i
 ```
 
 #### Milestone Mathematics & Desynchronization Prevention:
-In `v11.4.1a`, the game tracks two XP numbers:
+In `v11.4.2a`, the game tracks two XP numbers:
 1. **Cumulative Experience Points (`CurrentXP`)**: Monotonically increasing counter.
 2. **Next Level Milestone Threshold (`RequiredXP`)**: Target number where the level-up sequence triggers.
 
@@ -202,7 +202,7 @@ Level 200: Base XP = 60,107,610, Required XP = 60,107,610 (Maxed)
 
 ### 5.2 Currencies, Shards & Token Linked Lists
 
-#### Primary Currency Containers (in `PlayerManager` at `[ModuleBase + 0x1A85EE0]`):
+#### Primary Currency Containers (in `PlayerManager` at `[ModuleBase + 0x1A86EE0]`):
 - **Bits**: Offset `+0x444` (`Container20`)
 - **Gems**: Offset `+0x458` (`Container20`)
 - **Hearts**: Offset `+0x4BC` (`Container20`)
@@ -223,7 +223,7 @@ Level 200: Base XP = 60,107,610, Required XP = 60,107,610 (Maxed)
 - **Bows**: `+0x404`
 
 #### Dual-Write Requirement (The Token Linked List):
-Inside `PlayerManager`, certain currencies are also mirrored in an internal `std::list`-style token map. The primary head pointer in `v11.4.1a` resides at:
+Inside `PlayerManager`, certain currencies are also mirrored in an internal `std::list`-style token map. The primary head pointer in `v11.4.2a` resides at:
 $$\text{HeadPointer} = [\text{PlayerManager} + 0x818]$$
 Fallback head pointer:
 $$\text{HeadPointer}_{alt} = [\text{PlayerManager} + 0x858]$$
@@ -262,12 +262,12 @@ ret
 #### Master Profile Customization Gate RVAs:
 | Cosmetic Type | RVA | Vanilla Bytes | Patched Bytes | ASM Translation |
 | :--- | :--- | :--- | :--- | :--- |
-| **Avatar Gate 1** | `0x5B00A0` | `0F 95 C0` | `B0 01 90` | `mov al, 1; nop` |
-| **Avatar Gate 2** | `0x5B037F` | `0F 95 C0` | `B0 01 90` | `mov al, 1; nop` |
-| **Avatar Frames** | `0x5B030F` | `0F 95 C0` | `B0 01 90` | `mov al, 1; nop` |
-| **Backgrounds** | `0x5B01EF` | `0F 95 C0` | `B0 01 90` | `mov al, 1; nop` |
-| **Background Frames** | `0x5B017F` | `0F 95 C0` | `B0 01 90` | `mov al, 1; nop` |
-| **Cutie Marks** | `0x5B025F` | `0F 95 C0` | `B0 01 90` | `mov al, 1; nop` |
+| **Avatar Gate 1** | `0x5B01F0` | `0F 95 C0` | `B0 01 90` | `mov al, 1; nop` |
+| **Avatar Gate 2** | `0x5B04CF` | `0F 95 C0` | `B0 01 90` | `mov al, 1; nop` |
+| **Avatar Frames** | `0x5B045F` | `0F 95 C0` | `B0 01 90` | `mov al, 1; nop` |
+| **Backgrounds** | `0x5B033F` | `0F 95 C0` | `B0 01 90` | `mov al, 1; nop` |
+| **Background Frames** | `0x5B02CF` | `0F 95 C0` | `B0 01 90` | `mov al, 1; nop` |
+| **Cutie Marks** | `0x5B03AF` | `0F 95 C0` | `B0 01 90` | `mov al, 1; nop` |
 
 ---
 
@@ -276,13 +276,13 @@ ret
 Unlocking pony costume sets and pieces requires hooking two discrete layers:
 
 #### 1. Piece Ownership Hook (`PonyPartsManager::IsPartOwned`):
-- **RVA**: `0x65CAA0`
+- **RVA**: `0x65CBD0`
 - **Vanilla**: `48 89 5C 24 08` (`mov [rsp+8], rbx`)
 - **Patch**: `B0 01 C3 90 90` (`mov al, 1; ret; nop; nop`)
 - **Result**: Every individual costume piece reports owned to the boutique wardrobe.
 
 #### 2. Costume Set Completion Hook (`CostumeSet::IsComplete`):
-- **RVA**: `0x956C90`
+- **RVA**: `0x956F60`
 - **Vanilla**: `48 89 5C 24 10` (`mov [rsp+16], rbx`)
 - **Patch**: `B0 01 C3 90 90` (`mov al, 1; ret; nop; nop`)
 - **Result**: Set bonuses and set completion rewards activate immediately.
@@ -321,34 +321,34 @@ The in-game store holds an array of 2,381 character records at `[ModuleBase + RV
 #### The 8 Master Code Hooks:
 To make unlisted, event-exclusive, and limited-time ponies purchasable directly:
 
-1. **`HOOK_ROT_SETTER` (RVA `0x1301A47`)**:
+1. **`HOOK_ROT_SETTER` (RVA `0x1301CD7`)**:
    - Bypasses rotation XML flag parsing: `0F 94 C0` $\rightarrow$ `B0 01 90` (`mov al, 1; nop`).
-2. **`HOOK_ROT_BUILDER` (RVA `0x69FFC3`)**:
+2. **`HOOK_ROT_BUILDER` (RVA `0x6A00F3`)**:
    - Bypasses category deque builder restrictions: `74 43` $\rightarrow$ `90 90` (`nop; nop`).
-3. **`HOOK_ROT_RENDER` (RVA `0x67C81F`)**:
+3. **`HOOK_ROT_RENDER` (RVA `0x67C94F`)**:
    - Bypasses shelf render iteration caps: `0F 84 FD 00 00 00` $\rightarrow$ 6x `90`.
-4. **`HOOK_BUYABILITY_ALL` (RVA `0x681610`)**:
+4. **`HOOK_BUYABILITY_ALL` (RVA `0x681740`)**:
    - Forces item buyability validation to true: `48 89 5C 24 08` $\rightarrow$ `B0 01 C3 90 90` (`mov al, 1; ret; nop; nop`).
-5. **`HOOK_ACTION_POSSIBLE` (RVA `0x3665A0`)**:
-   - Scaleform action gate bypass: `40 57 48 83 EC 50 83 79 20 01` $\rightarrow$ `48 8B 09 B2 01 E9 C6 99 89 00`.
-6. **`HOOK_GET_CURRENCY` (RVA `0x6C9630`)**:
+5. **`HOOK_ACTION_POSSIBLE` (RVA `0x366600`)**:
+   - Scaleform action gate bypass: `40 57 48 83 EC 50 83 79 20 01` $\rightarrow$ `48 8B 09 B2 01 E9 36 A6 89 00`.
+6. **`HOOK_GET_CURRENCY` (RVA `0x6C9760`)**:
    - Runtime currency resolver: `48 83 EC 28 48 8B D1 8B 49 68 33 4A 60 8B 42 6C` $\rightarrow$ `8B 81 08 01 00 00 85 C0 75 05 B8 02 00 00 00 C3`.
-7. **`HOOK_BUY_FRAME_CHECK` (RVA `0x67DFF9`)**:
+7. **`HOOK_BUY_FRAME_CHECK` (RVA `0x67E129`)**:
    - Dispatcher frame debounce bypass: `0F 8E AC 01 00 00` $\rightarrow$ 6x `90`.
-8. **`HOOK_BUY_HOUSE_CHECK` (RVA `0x67F676`)**:
+8. **`HOOK_BUY_HOUSE_CHECK` (RVA `0x67F7A6`)**:
    - Housing space allowance override: `0F 94 C3` $\rightarrow$ `31 DB 90` (`xor ebx, ebx; nop`).
 
 > [!CAUTION]
-> **CRITICAL CRASH PITFALL: Zone Check at RVA `0x6C9600`**:
-> Legacy tools attempted to patch the town zone validation function at RVA `0x6C9600`. In `v11.4.1a`, modifying `0x6C9600` corrupts the Scaleform category dispatcher, causing an instant CTD (Crash to Desktop) the exact moment the player clicks on the Store button!
-> **Rule**: Never patch RVA `0x6C9600`. It must retain its pure vanilla bytes: `4C 8B 41 40 48` (`mov r8, [rcx+0x40]; rex.W`).
+> **CRITICAL CRASH PITFALL: Zone Check at RVA `0x6C9730`**:
+> Legacy tools attempted to patch the town zone validation function at RVA `0x6C9600`. In `v11.4.2a` (RVA `0x6C9730`), modifying this function corrupts the Scaleform category dispatcher, causing an instant CTD (Crash to Desktop) the exact moment the player clicks on the Store button!
+> **Rule**: Never patch RVA `0x6C9730`. It must retain its pure vanilla bytes: `4C 8B 41 40 48` (`mov r8, [rcx+0x40]; rex.W`).
 
 ---
 
 ### 5.6 Fortune Shop & Royal Club Engine Coupling
 
 The Fortune Shop is controlled by `FortuneShopManager` via a double pointer:
-$$\text{FSM} = [[\text{ModuleBase} + 0x1A84318]]$$
+$$\text{FSM} = [[\text{ModuleBase} + 0x1A85318]]$$
 
 #### Internal FSM Offsets:
 - `+0x08`: Availability flag (`uint8_t`)
@@ -381,7 +381,7 @@ Result: Instant roster re-roll guaranteed to pull from the rare character pool w
 
 #### Traversal Algorithm for `StateMinigameFindPair` (State ID 102):
 The `StateManager` maintains a circular doubly linked list of active game states at:
-$$\text{StateHead} = [[\text{ModuleBase} + 0x1A74338] + 0x08]$$
+$$\text{StateHead} = [[\text{ModuleBase} + 0x1A75338] + 0x08]$$
 
 To find the active minigame instance without hardcoded pointers:
 ```python

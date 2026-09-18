@@ -24,3 +24,6 @@ desktop.ini
 .vscode/
 .idea/
 *.swp
+
+# Release Archives (Root)
+/*.zip

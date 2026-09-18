@@ -453,7 +453,7 @@ class SuiteApp {
     if (this.isAttached && !verInfo.is_match && !this.mismatchOverridden) {
       if (this.elMismatchBanner) this.elMismatchBanner.classList.add('show');
       if (this.elMismatchDetected) this.elMismatchDetected.textContent = verInfo.detected_version || 'Unknown';
-      if (this.elMismatchExpected) this.elMismatchExpected.textContent = verInfo.expected_version || 'v11.4.1a';
+      if (this.elMismatchExpected) this.elMismatchExpected.textContent = verInfo.expected_version || 'v11.4.2a';
     } else {
       if (this.elMismatchBanner) this.elMismatchBanner.classList.remove('show');
     }

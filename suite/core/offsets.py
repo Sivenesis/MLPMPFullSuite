@@ -1,6 +1,6 @@
 """
 Centralized Memory Map, RVAs, Struct Offsets, and Patch Signatures.
-MLPMP Full Suite - Target Build: MyLittlePony_x64.exe (v11.4.1a)
+MLPMP Full Suite - Target Build: MyLittlePony_x64.exe (v11.4.2a)
 
 All memory references are centralized here to allow trivial updates when game patches release.
 """
@@ -9,21 +9,21 @@ from typing import Dict, Tuple, List, Any
 
 # Target Binary Definition
 TARGET_EXE_NAME = "MyLittlePony_x64.exe"
-TARGET_GAME_VERSION = "11.4.1a"
-SUITE_VERSION = "2.1.0"
+TARGET_GAME_VERSION = "11.4.2a"
+SUITE_VERSION = "2.1.1"
 
 # =============================================================================
 # SINGLETON RVAs (Relative Virtual Addresses from Main Module Base)
 # =============================================================================
-RVA_PLAYER_MANAGER   = 0x1A85EE0   # PlayerManager* / ResourceManager*
-RVA_LEVEL_MANAGER    = 0x1A76CA8   # PlayerLevelManager*
-RVA_PONY_PARTS_MGR   = 0x1A788B8   # PonyPartsManager*
-RVA_STATE_MANAGER    = 0x1A74338   # StateManager* (Minigames, FSM)
-RVA_FSM_POINTER      = 0x1A84318   # FortuneShopManager** (Double pointer)
-RVA_GAME_STATE       = 0x1AD69F0   # GameState*
-RVA_UI_INVALIDATE    = 0x1A8B7A0   # UI Cache invalidation flag
-RVA_SHOP_CONTROLLER  = 0x1A87740   # ShopManager*
-RVA_TOWN_CONTROLLER  = 0x1A86DE8   # TownManager*
+RVA_PLAYER_MANAGER   = 0x1A86EE0   # PlayerManager* / ResourceManager*
+RVA_LEVEL_MANAGER    = 0x1A77CA8   # PlayerLevelManager*
+RVA_PONY_PARTS_MGR   = 0x1A798B8   # PonyPartsManager*
+RVA_STATE_MANAGER    = 0x1A75338   # StateManager* (Minigames, FSM)
+RVA_FSM_POINTER      = 0x1A85318   # FortuneShopManager** (Double pointer)
+RVA_GAME_STATE       = 0x1AD79F0   # GameState*
+RVA_UI_INVALIDATE    = 0x1A8C7A0   # UI Cache invalidation flag
+RVA_SHOP_CONTROLLER  = 0x1A88740   # ShopManager*
+RVA_TOWN_CONTROLLER  = 0x1A87DE8   # TownManager*
 
 # =============================================================================
 # PLAYER LEVEL MANAGER (at [base + RVA_LEVEL_MANAGER])
@@ -73,7 +73,7 @@ OFF_BOOSTER_BITS_MULT  = 0x118C    # float (multiplier e.g. 2.0)
 OFF_FERRIS_WHEEL_ELAPSED = 0x898   # float (counts up to 3600.0s)
 
 # Token Linked List Map inside PlayerManager
-OFF_TOKEN_MAP_PRIMARY   = 0x818    # Primary head pointer in v11.4.1a (std::list)
+OFF_TOKEN_MAP_PRIMARY   = 0x818    # Primary head pointer in v11.4.2a (std::list)
 OFF_TOKEN_MAP_SECONDARY = 0x858    # Fallback head pointer
 
 # Token Identifiers for Red-Black Tree lookup
@@ -95,37 +95,37 @@ MATERIAL_TOKENS: Dict[str, str] = {
 PROFILE_HOOKS: Dict[str, Dict[str, Any]] = {
     "HOOK_AVATARS_1": {
         "name": "Avatar Ownership Gate 1",
-        "rva": 0x5B00A0,
+        "rva": 0x5B01F0,
         "orig": b"\x0f\x95\xc0",             # setne al (3 bytes)
         "patch": b"\xb0\x01\x90",            # mov al, 1; nop (3 bytes)
     },
     "HOOK_AVATARS_2": {
         "name": "Avatar Ownership Gate 2",
-        "rva": 0x5B037F,
+        "rva": 0x5B04CF,
         "orig": b"\x0f\x95\xc0",
         "patch": b"\xb0\x01\x90",
     },
     "HOOK_AVATAR_FRAMES": {
         "name": "Avatar Frame Ownership Gate",
-        "rva": 0x5B030F,
+        "rva": 0x5B045F,
         "orig": b"\x0f\x95\xc0",
         "patch": b"\xb0\x01\x90",
     },
     "HOOK_BACKGROUNDS": {
         "name": "Background Ownership Gate",
-        "rva": 0x5B01EF,
+        "rva": 0x5B033F,
         "orig": b"\x0f\x95\xc0",
         "patch": b"\xb0\x01\x90",
     },
     "HOOK_BG_FRAMES": {
         "name": "Background Frame Ownership Gate",
-        "rva": 0x5B017F,
+        "rva": 0x5B02CF,
         "orig": b"\x0f\x95\xc0",
         "patch": b"\xb0\x01\x90",
     },
     "HOOK_CUTIE_MARKS": {
         "name": "Cutie Mark Ownership Gate",
-        "rva": 0x5B025F,
+        "rva": 0x5B03AF,
         "orig": b"\x0f\x95\xc0",
         "patch": b"\xb0\x01\x90",
     },
@@ -134,11 +134,11 @@ PROFILE_HOOKS: Dict[str, Dict[str, Any]] = {
 # =============================================================================
 # PONY EDITOR: COSTUMES & SETS HOOKS
 # =============================================================================
-RVA_PART_OWNED    = 0x65CAA0  # bool PonyPartsManager::IsPartOwned(HashedString&)
+RVA_PART_OWNED    = 0x65CBD0  # bool PonyPartsManager::IsPartOwned(HashedString&)
 ORIG_PART_OWNED   = b"\x48\x89\x5c\x24\x08"
 PATCH_PART_OWNED  = b"\xb0\x01\xc3\x90\x90"  # mov al, 1; ret; nop; nop
 
-RVA_SET_COMPLETE  = 0x956C90  # bool CostumeSet::IsComplete()
+RVA_SET_COMPLETE  = 0x956F60  # bool CostumeSet::IsComplete()
 ORIG_SET_COMPLETE = b"\x48\x89\x5c\x24\x10"
 PATCH_SET_COMPLETE = b"\xb0\x01\xc3\x90\x90" # mov al, 1; ret; nop; nop
 
@@ -153,68 +153,68 @@ PATCH_COSTUME_VIS = b"\xb0\x01\x90\x90"     # mov al, 1; nop; nop
 STORE_PATCHES: Dict[str, Dict[str, Any]] = {
     "HOOK_ROT_SETTER": {
         "name": "Store Rotation XML Setter",
-        "rva": 0x1301A47,
+        "rva": 0x1301CD7,
         "orig": b"\x0f\x94\xc0",
         "patch": b"\xb0\x01\x90",
     },
     "HOOK_ROT_BUILDER": {
         "name": "Category Deque Builder",
-        "rva": 0x69FFC3,
+        "rva": 0x6A00F3,
         "orig": b"\x74\x43",
         "patch": b"\x90\x90",
     },
     "HOOK_ROT_RENDER": {
         "name": "Shelf Render Iterator",
-        "rva": 0x67C81F,
+        "rva": 0x67C94F,
         "orig": b"\x0f\x84\xfd\x00\x00\x00",
         "patch": b"\x90\x90\x90\x90\x90\x90",
     },
     "HOOK_BUYABILITY_ALL": {
         "name": "Buyability Enabler",
-        "rva": 0x681610,
+        "rva": 0x681740,
         "orig": b"\x48\x89\x5c\x24\x08",
         "patch": b"\xb0\x01\xc3\x90\x90",
     },
     "HOOK_ACTION_POSSIBLE": {
         "name": "Scaleform Action Gate",
-        "rva": 0x3665A0,
+        "rva": 0x366600,
         "orig": b"\x40\x57\x48\x83\xec\x50\x83\x79\x20\x01",
-        "patch": b"\x48\x8b\x09\xb2\x01\xe9\xc6\x99\x89\x00",
+        "patch": b"\x48\x8b\x09\xb2\x01\xe9\x36\xa6\x89\x00",
     },
     "HOOK_GET_CURRENCY": {
         "name": "Currency Type Resolver",
-        "rva": 0x6C9630,
+        "rva": 0x6C9760,
         "orig": b"\x48\x83\xec\x28\x48\x8b\xd1\x8b\x49\x68\x33\x4a\x60\x8b\x42\x6c",
         "patch": b"\x8b\x81\x08\x01\x00\x00\x85\xc0\x75\x05\xb8\x02\x00\x00\x00\xc3",
     },
     "HOOK_BUY_FRAME_CHECK": {
         "name": "Dispatcher Frame Debounce",
-        "rva": 0x67DFF9,
+        "rva": 0x67E129,
         "orig": b"\x0f\x8e\xac\x01\x00\x00",
         "patch": b"\x90\x90\x90\x90\x90\x90",
     },
     "HOOK_BUY_HOUSE_CHECK": {
         "name": "Housing Space Allowance",
-        "rva": 0x67F676,
+        "rva": 0x67F7A6,
         "orig": b"\x0f\x94\xc3",
         "patch": b"\x31\xdb\x90",
     },
 }
 
-RVA_ZONE_CHECK = 0x6C9600
+RVA_ZONE_CHECK = 0x6C9730
 VANILLA_ZONE_BYTES = b"\x4c\x8b\x41\x40\x48"
 
 # Remediation RVAs for stale legacy patches
-RVA_SORT_PRICE_STUB = 0x68CD91
+RVA_SORT_PRICE_STUB = 0x68CEC1
 VANILLA_SORT_PRICE_BYTES = b"\xf3\x41\x0f\x11\x74\x24\x50"
-RVA_CAN_PLACE_STUB = 0x630290
+RVA_CAN_PLACE_STUB = 0x6303C0
 VANILLA_CAN_PLACE_BYTES = b"\x48\x89\x5c\x24\x08"
 
 # =============================================================================
 # FORTUNE SHOP & ROYAL CLUB
 # =============================================================================
-RVA_FORTUNE_VIS_CHECK  = 0x81D7DC  # 2 bytes: je 0x81D7E2 (\x74\x04)
-RVA_FORTUNE_FREE_CHECK = 0x81D7EB  # 7 bytes: cmp r8d, 2; sete al (\x41\x83\xF8\x02\x0F\x94\xC0)
+RVA_FORTUNE_VIS_CHECK  = 0x81D90C  # 2 bytes: je 0x81D912 (\x74\x04)
+RVA_FORTUNE_FREE_CHECK = 0x81D91B  # 7 bytes: cmp r8d, 2; sete al (\x41\x83\xF8\x02\x0F\x94\xC0)
 ORIG_FORTUNE_VIS       = b"\x74\x04"
 ORIG_FORTUNE_FREE      = b"\x41\x83\xf8\x02\x0f\x94\xc0"
 
