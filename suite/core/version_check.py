@@ -7,13 +7,13 @@ from typing import Dict, Any, Optional
 from core.memory import mem
 from core.offsets import TARGET_GAME_VERSION
 
-RVA_VERSION_STRING = 0x154DC30
+RVA_VERSION_STRING = 0x1548D90  # 11.4.2a: 0x154DC30
 
 
 def check_game_version() -> Dict[str, Any]:
     """
     Validates whether the attached or running game process matches the expected version.
-    Target: Client v11.4.2a (Package build 11.4.2.0 or version string 11.4.2).
+    Target: Client v11.5.0 (Package build 11.5.0.0 or version string 11.5.0).
     """
     if not mem.is_attached():
         return {
@@ -28,10 +28,10 @@ def check_game_version() -> Dict[str, Any]:
     if not detected:
         detected = "Unknown Build"
 
-    # In Gameloft's Windows PC package, string '11.4.2' corresponds to client 'v11.4.2a'
-    is_compatible = detected.startswith("11.4.2") or detected == TARGET_GAME_VERSION
+    # In Gameloft's Windows PC package, string '11.5.0' corresponds to client 'v11.5.0'
+    is_compatible = detected.startswith("11.5") or detected == TARGET_GAME_VERSION
 
-    display_version = "v11.4.2a" if is_compatible else detected
+    display_version = "v11.5.0" if is_compatible else detected
 
     return {
         "attached": True,

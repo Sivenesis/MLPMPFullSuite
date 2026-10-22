@@ -1,29 +1,33 @@
 """
 Centralized Memory Map, RVAs, Struct Offsets, and Patch Signatures.
-MLPMP Full Suite - Target Build: MyLittlePony_x64.exe (v11.4.2a)
+MLPMP Full Suite - Target Build: MyLittlePony_x64.exe (v11.5.0)
 
 All memory references are centralized here to allow trivial updates when game patches release.
+
+Re-offset for 11.5.0 (package 11.5.0.0): every RVA below was re-derived against the live
+process. Struct offsets, Container20 cipher (ROR32-5), and all orig/patch byte signatures are
+UNCHANGED from 11.4.2a - only module RVAs moved. See OFFSETS_1150_WIP.md for the evidence.
 """
 
 from typing import Dict, Tuple, List, Any
 
 # Target Binary Definition
 TARGET_EXE_NAME = "MyLittlePony_x64.exe"
-TARGET_GAME_VERSION = "11.4.2a"
-SUITE_VERSION = "2.1.1"
+TARGET_GAME_VERSION = "11.5.0"
+SUITE_VERSION = "2.2.0"
 
 # =============================================================================
 # SINGLETON RVAs (Relative Virtual Addresses from Main Module Base)
 # =============================================================================
-RVA_PLAYER_MANAGER   = 0x1A86EE0   # PlayerManager* / ResourceManager*
-RVA_LEVEL_MANAGER    = 0x1A77CA8   # PlayerLevelManager*
-RVA_PONY_PARTS_MGR   = 0x1A798B8   # PonyPartsManager*
-RVA_STATE_MANAGER    = 0x1A75338   # StateManager* (Minigames, FSM)
-RVA_FSM_POINTER      = 0x1A85318   # FortuneShopManager** (Double pointer)
-RVA_GAME_STATE       = 0x1AD79F0   # GameState*
-RVA_UI_INVALIDATE    = 0x1A8C7A0   # UI Cache invalidation flag
-RVA_SHOP_CONTROLLER  = 0x1A88740   # ShopManager*
-RVA_TOWN_CONTROLLER  = 0x1A87DE8   # TownManager*
+RVA_PLAYER_MANAGER   = 0x1A7E660   # PlayerManager* / ResourceManager*  (11.4.2a: 0x1A86EE0)
+RVA_LEVEL_MANAGER    = 0x1A6F3C8   # PlayerLevelManager*                (11.4.2a: 0x1A77CA8)
+RVA_PONY_PARTS_MGR   = 0x1A70FD8   # PonyPartsManager*                  (11.4.2a: 0x1A798B8)
+RVA_STATE_MANAGER    = 0x1A6CA58   # StateManager* (Minigames, FSM)     (11.4.2a: 0x1A75338)
+RVA_FSM_POINTER      = 0x1A7CA98   # FortuneShopManager** (Double ptr)  (11.4.2a: 0x1A85318)
+RVA_GAME_STATE       = 0x1AD3630   # GameState*                         (11.4.2a: 0x1AD79F0)
+RVA_UI_INVALIDATE    = 0x1A83F20   # UI Cache invalidation flag         (11.4.2a: 0x1A8C7A0)
+RVA_SHOP_CONTROLLER  = 0x1A7FEC0   # ShopManager*                       (11.4.2a: 0x1A88740)
+RVA_TOWN_CONTROLLER  = 0x1A7F568   # TownManager*                       (11.4.2a: 0x1A87DE8)
 
 # =============================================================================
 # PLAYER LEVEL MANAGER (at [base + RVA_LEVEL_MANAGER])
@@ -95,37 +99,37 @@ MATERIAL_TOKENS: Dict[str, str] = {
 PROFILE_HOOKS: Dict[str, Dict[str, Any]] = {
     "HOOK_AVATARS_1": {
         "name": "Avatar Ownership Gate 1",
-        "rva": 0x5B01F0,
+        "rva": 0x5AE6E0,                     # 11.4.2a: 0x5B01F0
         "orig": b"\x0f\x95\xc0",             # setne al (3 bytes)
         "patch": b"\xb0\x01\x90",            # mov al, 1; nop (3 bytes)
     },
     "HOOK_AVATARS_2": {
         "name": "Avatar Ownership Gate 2",
-        "rva": 0x5B04CF,
+        "rva": 0x5AE9BF,                     # 11.4.2a: 0x5B04CF
         "orig": b"\x0f\x95\xc0",
         "patch": b"\xb0\x01\x90",
     },
     "HOOK_AVATAR_FRAMES": {
         "name": "Avatar Frame Ownership Gate",
-        "rva": 0x5B045F,
+        "rva": 0x5AE94F,                     # 11.4.2a: 0x5B045F
         "orig": b"\x0f\x95\xc0",
         "patch": b"\xb0\x01\x90",
     },
     "HOOK_BACKGROUNDS": {
         "name": "Background Ownership Gate",
-        "rva": 0x5B033F,
+        "rva": 0x5AE82F,                     # 11.4.2a: 0x5B033F
         "orig": b"\x0f\x95\xc0",
         "patch": b"\xb0\x01\x90",
     },
     "HOOK_BG_FRAMES": {
         "name": "Background Frame Ownership Gate",
-        "rva": 0x5B02CF,
+        "rva": 0x5AE7BF,                     # 11.4.2a: 0x5B02CF
         "orig": b"\x0f\x95\xc0",
         "patch": b"\xb0\x01\x90",
     },
     "HOOK_CUTIE_MARKS": {
         "name": "Cutie Mark Ownership Gate",
-        "rva": 0x5B03AF,
+        "rva": 0x5AE89F,                     # 11.4.2a: 0x5B03AF
         "orig": b"\x0f\x95\xc0",
         "patch": b"\xb0\x01\x90",
     },
@@ -134,16 +138,28 @@ PROFILE_HOOKS: Dict[str, Dict[str, Any]] = {
 # =============================================================================
 # PONY EDITOR: COSTUMES & SETS HOOKS
 # =============================================================================
-RVA_PART_OWNED    = 0x65CBD0  # bool PonyPartsManager::IsPartOwned(HashedString&)
+# ============================================================================
+# !! COSTUME HOOKS UNVERIFIED FOR 11.5.0 - DO NOT USE AS-IS !!
+# The 11.4.2a generic prologues matched the WRONG functions in 11.5.0:
+#   - 0x668A90 is a setter (reads [this+0x88], virtual call, stores arg) - NOT IsPartOwned.
+#   - 0x958270 is a string/data processor (has a mov [0],0xDEAD assert) - NOT IsComplete.
+#   - The 0x2FBxxx movzx [rsi+0x48] reads are UI display-value reads, not visibility gates
+#     (they are in the real FashionPage fn 0x2FBAF0, confirmed by the "FashionPage" string xref,
+#      but patching them to mov al,1 changes a displayed value, not hidden-costume visibility).
+# RVAs are set to an out-of-image sentinel so apply_patch() reads None and SAFELY aborts
+# (no wrong function gets patched). Re-derive the real hidden-costume visibility gate before use.
+# ============================================================================
+_COSTUME_HOOK_SENTINEL = 0x0FFFFFFF   # beyond SizeOfImage (0x1C51000) -> read fails -> patch aborts
+RVA_PART_OWNED    = _COSTUME_HOOK_SENTINEL  # TODO 11.5.0: real PonyPartsManager ownership check
 ORIG_PART_OWNED   = b"\x48\x89\x5c\x24\x08"
 PATCH_PART_OWNED  = b"\xb0\x01\xc3\x90\x90"  # mov al, 1; ret; nop; nop
 
-RVA_SET_COMPLETE  = 0x956F60  # bool CostumeSet::IsComplete()
+RVA_SET_COMPLETE  = _COSTUME_HOOK_SENTINEL  # TODO 11.5.0: real CostumeSet::IsComplete
 ORIG_SET_COMPLETE = b"\x48\x89\x5c\x24\x10"
 PATCH_SET_COMPLETE = b"\xb0\x01\xc3\x90\x90" # mov al, 1; ret; nop; nop
 
-# FashionPage Boutique Visibility Checks (in FashionPage 0x2F9860)
-COSTUME_VIS_RVAS = [0x2F99F5, 0x2F9A52, 0x2F9BBE, 0x2F9C2C, 0x2F9C9A, 0x2F9DF2, 0x2F9E63]
+# FashionPage Boutique Visibility Checks - TODO 11.5.0: these are display-reads, NOT the gate.
+COSTUME_VIS_RVAS = []  # emptied until the real hidden-costume visibility gate is found
 ORIG_COSTUME_VIS  = b"\x0f\xb6\x46\x48"
 PATCH_COSTUME_VIS = b"\xb0\x01\x90\x90"     # mov al, 1; nop; nop
 
@@ -153,68 +169,77 @@ PATCH_COSTUME_VIS = b"\xb0\x01\x90\x90"     # mov al, 1; nop; nop
 STORE_PATCHES: Dict[str, Dict[str, Any]] = {
     "HOOK_ROT_SETTER": {
         "name": "Store Rotation XML Setter",
-        "rva": 0x1301CD7,
+        "rva": 0x12FFD1C,                    # 11.4.2a: 0x1301CD7
         "orig": b"\x0f\x94\xc0",
         "patch": b"\xb0\x01\x90",
     },
     "HOOK_ROT_BUILDER": {
         "name": "Category Deque Builder",
-        "rva": 0x6A00F3,
+        "rva": 0x69F163,                     # 11.4.2a: 0x6A00F3
         "orig": b"\x74\x43",
         "patch": b"\x90\x90",
     },
     "HOOK_ROT_RENDER": {
         "name": "Shelf Render Iterator",
-        "rva": 0x67C94F,
+        "rva": 0x67B21F,                     # 11.4.2a: 0x67C94F
         "orig": b"\x0f\x84\xfd\x00\x00\x00",
         "patch": b"\x90\x90\x90\x90\x90\x90",
     },
+    # DISABLED for 11.5.0 - best-guess RVA, never live-verified. Store rotation + purchase
+    # both work with only the 3 rotation hooks (ROT_SETTER/BUILDER/RENDER), so this is not
+    # needed; sentinel'd to avoid patching a possibly-wrong function. Verify before enabling.
     "HOOK_BUYABILITY_ALL": {
         "name": "Buyability Enabler",
-        "rva": 0x681740,
+        "rva": 0x0FFFFFFF,                   # DISABLED (best-guess 0x680D60); not needed for store rotation
         "orig": b"\x48\x89\x5c\x24\x08",
         "patch": b"\xb0\x01\xc3\x90\x90",
     },
+    # !! DISABLED for 11.5.0 - caused CTD. The patch ends in a RELATIVE jmp (E9 36 A6 89 00)
+    # whose target was computed for the old address 0x366600; at 0x368810 it lands in the wrong
+    # function. The patch bytes must be rebuilt for 11.5.0 (recompute the detour target), not copied.
+    # RVA relocated fine (0x366600 -> 0x368810) but is sentinel'd so the broken patch cannot apply.
     "HOOK_ACTION_POSSIBLE": {
         "name": "Scaleform Action Gate",
-        "rva": 0x366600,
+        "rva": 0x0FFFFFFF,                    # DISABLED (real site 0x368810); patch bytes need rebuild
         "orig": b"\x40\x57\x48\x83\xec\x50\x83\x79\x20\x01",
         "patch": b"\x48\x8b\x09\xb2\x01\xe9\x36\xa6\x89\x00",
     },
     "HOOK_GET_CURRENCY": {
         "name": "Currency Type Resolver",
-        "rva": 0x6C9760,
+        "rva": 0x6C88D0,                     # 11.4.2a: 0x6C9760
         "orig": b"\x48\x83\xec\x28\x48\x8b\xd1\x8b\x49\x68\x33\x4a\x60\x8b\x42\x6c",
         "patch": b"\x8b\x81\x08\x01\x00\x00\x85\xc0\x75\x05\xb8\x02\x00\x00\x00\xc3",
     },
     "HOOK_BUY_FRAME_CHECK": {
         "name": "Dispatcher Frame Debounce",
-        "rva": 0x67E129,
+        "rva": 0x67C9F9,                     # 11.4.2a: 0x67E129
         "orig": b"\x0f\x8e\xac\x01\x00\x00",
         "patch": b"\x90\x90\x90\x90\x90\x90",
     },
+    # DISABLED for 11.5.0 - best-guess RVA (alt 0x67E076), never verified. Not needed for store
+    # rotation; sentinel'd for safety. Housing-space override is a separate niche feature.
     "HOOK_BUY_HOUSE_CHECK": {
         "name": "Housing Space Allowance",
-        "rva": 0x67F7A6,
+        "rva": 0x0FFFFFFF,                   # DISABLED (best-guess 0x67E2E3 / 0x67E076); verify before enabling
         "orig": b"\x0f\x94\xc3",
         "patch": b"\x31\xdb\x90",
     },
 }
 
-RVA_ZONE_CHECK = 0x6C9730
+RVA_ZONE_CHECK = 0x6C88A0                    # 11.4.2a: 0x6C9730  (do NOT patch; keep vanilla)
 VANILLA_ZONE_BYTES = b"\x4c\x8b\x41\x40\x48"
 
 # Remediation RVAs for stale legacy patches
-RVA_SORT_PRICE_STUB = 0x68CEC1
+RVA_SORT_PRICE_STUB = 0x68B931               # 11.4.2a: 0x68CEC1
 VANILLA_SORT_PRICE_BYTES = b"\xf3\x41\x0f\x11\x74\x24\x50"
-RVA_CAN_PLACE_STUB = 0x6303C0
+RVA_CAN_PLACE_STUB = 0x62EE40                # 11.4.2a: 0x6303C0  (co-test: 0x62EB10 is the alt candidate)
 VANILLA_CAN_PLACE_BYTES = b"\x48\x89\x5c\x24\x08"
 
 # =============================================================================
 # FORTUNE SHOP & ROYAL CLUB
 # =============================================================================
-RVA_FORTUNE_VIS_CHECK  = 0x81D90C  # 2 bytes: je 0x81D912 (\x74\x04)
-RVA_FORTUNE_FREE_CHECK = 0x81D91B  # 7 bytes: cmp r8d, 2; sete al (\x41\x83\xF8\x02\x0F\x94\xC0)
+RVA_FORTUNE_VIS_CHECK  = 0x81DA7C  # 2 bytes: je (\x74\x04)                        (11.4.2a: 0x81D90C)
+RVA_FORTUNE_FREE_CHECK = 0x81DA8B  # 7 bytes: cmp r8d, 2; sete al (\x41\x83\xF8\x02\x0F\x94\xC0)  (11.4.2a: 0x81D91B)
 ORIG_FORTUNE_VIS       = b"\x74\x04"
 ORIG_FORTUNE_FREE      = b"\x41\x83\xf8\x02\x0f\x94\xc0"
 
