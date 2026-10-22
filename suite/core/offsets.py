@@ -138,28 +138,20 @@ PROFILE_HOOKS: Dict[str, Dict[str, Any]] = {
 # =============================================================================
 # PONY EDITOR: COSTUMES & SETS HOOKS
 # =============================================================================
-# ============================================================================
-# !! COSTUME HOOKS UNVERIFIED FOR 11.5.0 - DO NOT USE AS-IS !!
-# The 11.4.2a generic prologues matched the WRONG functions in 11.5.0:
-#   - 0x668A90 is a setter (reads [this+0x88], virtual call, stores arg) - NOT IsPartOwned.
-#   - 0x958270 is a string/data processor (has a mov [0],0xDEAD assert) - NOT IsComplete.
-#   - The 0x2FBxxx movzx [rsi+0x48] reads are UI display-value reads, not visibility gates
-#     (they are in the real FashionPage fn 0x2FBAF0, confirmed by the "FashionPage" string xref,
-#      but patching them to mov al,1 changes a displayed value, not hidden-costume visibility).
-# RVAs are set to an out-of-image sentinel so apply_patch() reads None and SAFELY aborts
-# (no wrong function gets patched). Re-derive the real hidden-costume visibility gate before use.
-# ============================================================================
-_COSTUME_HOOK_SENTINEL = 0x0FFFFFFF   # beyond SizeOfImage (0x1C51000) -> read fails -> patch aborts
-RVA_PART_OWNED    = _COSTUME_HOOK_SENTINEL  # TODO 11.5.0: real PonyPartsManager ownership check
+# 11.5.0 costume unlock = 9 hooks (PonyPartsManager::IsPartOwned + CostumeSet::IsComplete +
+# 7 FashionPage visibility gates), all forced to return true. Addresses verified against the
+# working CT table. Note: the correct IsPartOwned is 0x65B360 (the call in the set loop at
+# 0x2FEAEB) - NOT 0x668A90, which earlier generic-prologue matching wrongly picked.
+RVA_PART_OWNED    = 0x65B360  # bool PonyPartsManager::IsPartOwned(HashedString&)  (11.4.2a: 0x65CBD0)
 ORIG_PART_OWNED   = b"\x48\x89\x5c\x24\x08"
 PATCH_PART_OWNED  = b"\xb0\x01\xc3\x90\x90"  # mov al, 1; ret; nop; nop
 
-RVA_SET_COMPLETE  = _COSTUME_HOOK_SENTINEL  # TODO 11.5.0: real CostumeSet::IsComplete
+RVA_SET_COMPLETE  = 0x9573B0  # bool CostumeSet::IsComplete()  (11.4.2a: 0x956F60)
 ORIG_SET_COMPLETE = b"\x48\x89\x5c\x24\x10"
 PATCH_SET_COMPLETE = b"\xb0\x01\xc3\x90\x90" # mov al, 1; ret; nop; nop
 
-# FashionPage Boutique Visibility Checks - TODO 11.5.0: these are display-reads, NOT the gate.
-COSTUME_VIS_RVAS = []  # emptied until the real hidden-costume visibility gate is found
+# FashionPage Boutique Visibility Checks (7 gates in FashionPage fn 0x2FBAF0).
+COSTUME_VIS_RVAS = [0x2FBD05, 0x2FBD62, 0x2FBECE, 0x2FBF3C, 0x2FBFAA, 0x2FC102, 0x2FC173]
 ORIG_COSTUME_VIS  = b"\x0f\xb6\x46\x48"
 PATCH_COSTUME_VIS = b"\xb0\x01\x90\x90"     # mov al, 1; nop; nop
 

@@ -21,8 +21,12 @@ Updated for game build **11.5.0** (package 11.5.0.0).
   button permanently available for unlimited re-rolls, **without ever touching Royal Club**.
   Implemented as a single in-place code patch (neutralizes the daily paid-refresh counter).
 
+## Costume unlock
+- **Unlock All Costumes & Sets** re-ported to 11.5.0 — 9 hooks forced true:
+  PonyPartsManager::IsPartOwned (`0x65B360`), CostumeSet::IsComplete (`0x9573B0`), and 7
+  FashionPage visibility gates (`0x2FBD05`…`0x2FC173`). Reveals hidden/event costume sets and
+  lets them be put on. (The earlier port mis-identified IsPartOwned; corrected here.)
+
 ## Known follow-ups
-- Costume "unlock all / hidden costumes" is disabled for 11.5.0 — the costume subsystem
-  changed substantially and needs re-derivation (safely no-ops in the meantime).
 - A few niche store hooks (ACTION_POSSIBLE detour, BUYABILITY/BUY_HOUSE best-guesses) are
   disabled; store rotation + purchase work without them.

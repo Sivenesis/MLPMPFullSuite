@@ -27,3 +27,7 @@ desktop.ini
 
 # Release Archives (Root)
 /*.zip
+
+# CET
+/*.ct
+/ct/*.ct

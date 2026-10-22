@@ -20,7 +20,6 @@ from core.offsets import (
     COSTUME_VIS_RVAS,
     ORIG_COSTUME_VIS,
     PATCH_COSTUME_VIS,
-    STORE_PATCHES,
     MATERIAL_OFFSETS,
     MATERIAL_TOKENS,
 )
@@ -32,8 +31,6 @@ class CostumesMechanic(BaseMechanic):
     name = "CostumesMechanic"
     description = "Pony Editor: Costumes/Sets Unlocker & Crafting Materials Manager"
 
-    ROT_KEYS = ["HOOK_ROT_SETTER", "HOOK_ROT_BUILDER", "HOOK_ROT_RENDER", "HOOK_BUYABILITY_ALL"]
-
     def get_unlock_state(self) -> Dict[str, Any]:
         """Inspects whether costume hooks and rotation patches are applied."""
         if not mem.is_attached() or not mem.module_base:
@@ -42,7 +39,6 @@ class CostumesMechanic(BaseMechanic):
                 "parts_owned_hook": False,
                 "set_complete_hook": False,
                 "vis_checks_hook": False,
-                "rotation_hooks": False,
             }
 
         addr_parts = mem.module_base + RVA_PART_OWNED
@@ -59,22 +55,12 @@ class CostumesMechanic(BaseMechanic):
                 vis_hook = False
                 break
 
-        rot_hook = True
-        for key in self.ROT_KEYS:
-            info = STORE_PATCHES[key]
-            addr = mem.module_base + info["rva"]
-            cur = mem.read_bytes(addr, len(info["patch"]))
-            if cur != info["patch"]:
-                rot_hook = False
-                break
-
-        all_unlocked = (parts_hook and set_hook and vis_hook and rot_hook)
+        all_unlocked = (parts_hook and set_hook and vis_hook)
         return {
             "all_unlocked": all_unlocked,
             "parts_owned_hook": parts_hook,
             "set_complete_hook": set_hook,
             "vis_checks_hook": vis_hook,
-            "rotation_hooks": rot_hook,
         }
 
     def get_materials(self) -> Dict[str, int]:
@@ -105,21 +91,21 @@ class CostumesMechanic(BaseMechanic):
 
         ok = True
 
-        # 1. Piece Ownership Hook (0x65CAA0)
+        # 1. Piece Ownership Hook (PonyPartsManager::IsPartOwned, 11.5.0: 0x65B360)
         addr_parts = mem.module_base + RVA_PART_OWNED
         if enable:
             ok &= mem.apply_patch("HOOK_PART_OWNED", addr_parts, PATCH_PART_OWNED, ORIG_PART_OWNED)
         else:
             ok &= mem.restore_patch("HOOK_PART_OWNED", addr_parts, ORIG_PART_OWNED)
 
-        # 2. Set Completion Hook (0x956C90)
+        # 2. Set Completion Hook (CostumeSet::IsComplete, 11.5.0: 0x9573B0)
         addr_set = mem.module_base + RVA_SET_COMPLETE
         if enable:
             ok &= mem.apply_patch("HOOK_SET_COMPLETE", addr_set, PATCH_SET_COMPLETE, ORIG_SET_COMPLETE)
         else:
             ok &= mem.restore_patch("HOOK_SET_COMPLETE", addr_set, ORIG_SET_COMPLETE)
 
-        # 3. Boutique Visibility Checks (0x2F9860)
+        # 3. FashionPage Boutique Visibility Checks (7 gates, 11.5.0: 0x2FBD05..0x2FC173)
         for i, rva in enumerate(COSTUME_VIS_RVAS):
             addr = mem.module_base + rva
             patch_name = f"COSTUME_VIS_{i}"
@@ -127,15 +113,6 @@ class CostumesMechanic(BaseMechanic):
                 ok &= mem.apply_patch(patch_name, addr, PATCH_COSTUME_VIS, ORIG_COSTUME_VIS)
             else:
                 ok &= mem.restore_patch(patch_name, addr, ORIG_COSTUME_VIS)
-
-        # 4. Master Store Rotation Hooks
-        for key in self.ROT_KEYS:
-            info = STORE_PATCHES[key]
-            addr = mem.module_base + info["rva"]
-            if enable:
-                ok &= mem.apply_patch(key, addr, info["patch"], info["orig"])
-            else:
-                ok &= mem.restore_patch(key, addr, info["orig"])
 
         return ok
 

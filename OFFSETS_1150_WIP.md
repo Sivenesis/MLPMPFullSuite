@@ -66,7 +66,14 @@ royalclub/boosters/ferris/tokenlist; LevelManager level/XP; FSM fields; Store re
 - HOOK_BUY_HOUSE_CHECK (best-guess 0x67E2E3/0x67E076): never verified; niche housing feature.
 - RVA_CAN_PLACE_STUB 0x62EE40 (best-guess): remediation-only (acts only if it sees B0 01 C3), low risk.
 
-### ◐ COSTUMES — PARTIAL (hidden sets can be made to APPEAR; obtaining them is event-gated):
+### ✅ COSTUMES — RESOLVED (via reference CT table ct/MLPMPFullSuite_v11.5.0a.CT):
+The working unlock is 9 hooks forced true: **IsPartOwned = 0x65B360** (the `call 0x65b360` in the
+set loop at 0x2FEAEB — my earlier 0x668A90 was WRONG), **IsComplete = 0x9573B0** (= CHECK_B),
+and the 7 FashionPage VIS gates 0x2FBD05/0x2FBD62/0x2FBECE/0x2FBF3C/0x2FBFAA/0x2FC102/0x2FC173
+(movzx[rsi+0x48] 0F B6 46 48 -> B0 01 90 90; the two checks -> B0 01 C3 90 90). Baked into
+offsets.py + costumes.py; UI re-enabled; co-tested working (matches the CT). History below.
+
+### ◐ (earlier dead-ends, kept for reference) hidden sets APPEAR but not obtainable:
 System = Pony Editor / Collection Book. Sets have states crafted/locked/notCrafted, prices
 (SetPrice), Buy/Craft actions (Native_BuyPonySet). StateFashion state id = 0x4C (ctor 0x812880);
 pony editor active state observed as id 0x40.
