@@ -91,6 +91,17 @@ BLOCKED — obtaining them:
   patches (0x9573B0, 0x2FA5F6, 0x957200) were reverted; NONE baked into offsets.py yet.
 - offsets.py costume hooks remain sentinel'd (safe no-op).
 
+RUNTIME INSTRUMENTATION findings (code-cave at CHECK_B 0x9573B0 logging rcx=set):
+- CostumeSet object layout: id char* at +0x08 (e.g. "SET_Sunburst_00" default, "SET_Sunburst_DDD_TLS_MAIN/SUB_1..3"
+  = hidden event set); +0x79 = collection-owned byte (across 279 live sets: 212 owned / 67 not);
+  +0x8a = available byte; float "prices" at +0x98/+0x9c; pieces vector at +0xd0/+0xd8.
+- Set objects are REBUILT on every editor/book open (owned resets to 0) -> direct data writes don't persist.
+- The Pony Editor costume selector does NOT read set+0x79 (no 0F B6 ?? 79 anywhere in 0x790000-0x7B0000):
+  it uses a SEPARATE wardrobe/owned-costume system, distinct from the Collection Book's set+0x79.
+- So "buyable in pony editor" needs the pony-editor wardrobe ownership + buy path cracked (deeper layer).
+  Confirmed achievable: CHECK_B patch makes hidden sets APPEAR (browse). Buy/wear = separate deep subsystem.
+- Capture tooling: scratchpad/scripts/inject.py (install/read/remove), examine_sets.py, own_sunburst.py.
+
 ### ✅ DONE deliverables:
 - `suite/data/ponies_catalog.json` → 2418 ponies, v11.5.0 (38 new, regenerated from live RAM).
 

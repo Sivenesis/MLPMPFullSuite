@@ -535,18 +535,10 @@ class SuiteApp {
     if (data.costumes && data.costumes.available) {
       const cUnlock = data.costumes.unlock_state || {};
       const cBadge = document.getElementById('costumes-status-badge');
-      const cBtn = document.getElementById('btn-toggle-costumes');
+      // Costume unlock is work-in-progress for 11.5.0; the button stays disabled (see index.html).
       if (cBadge) {
-        cBadge.dataset.unlocked = cUnlock.all_unlocked ? 'true' : 'false';
-        if (cUnlock.all_unlocked) {
-          cBadge.textContent = 'UNLOCKED';
-          cBadge.className = 'meta-pill status-attached';
-          if (cBtn) cBtn.textContent = 'Lock Costumes (Vanilla)';
-        } else {
-          cBadge.textContent = 'LOCKED';
-          cBadge.className = 'meta-pill status-detached';
-          if (cBtn) cBtn.textContent = 'Unlock All Costumes (Sets)';
-        }
+        cBadge.textContent = 'WIP';
+        cBadge.className = 'meta-pill status-detached';
       }
 
       const mats = data.costumes.materials || {};
