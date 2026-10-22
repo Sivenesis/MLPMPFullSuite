@@ -12,6 +12,25 @@ class SuiteApp {
     this.activeTab = 'tab-profile';
     this.levelTableData = [];
     this.lastLevelEditTime = 0;
+    this.dirtyCurrencies = new Set();
+    this.liveCurrencies = {};
+    this.lastCurrencyApplyTime = 0;
+    this.dirtyLevel = new Set();
+    this.dirtyMaterials = new Set();
+    this.dirtyBoosters = new Set();
+    this.dirtyGqKeys = false;
+    this.currencyInputIds = [
+      'input-bits',
+      'input-gems',
+      'input-hearts',
+      'input-friendship-hearts',
+      'input-shard-loyalty',
+      'input-shard-kindness',
+      'input-shard-honesty',
+      'input-shard-generosity',
+      'input-shard-laughter',
+      'input-shard-magic',
+    ];
 
     this.initElements();
     this.initEventListeners();
@@ -98,9 +117,11 @@ class SuiteApp {
 
     // 1. Level & XP (Decoupled: Apply Level & Apply XP)
     document.getElementById('input-level')?.addEventListener('input', () => {
+      this.dirtyLevel.add('input-level');
       this.lastLevelEditTime = Date.now();
     });
     document.getElementById('input-xp')?.addEventListener('input', () => {
+      this.dirtyLevel.add('input-xp');
       this.lastLevelEditTime = Date.now();
     });
 
@@ -111,6 +132,7 @@ class SuiteApp {
         level: level,
       });
       if (res.success) {
+        this.dirtyLevel.delete('input-level');
         window.toast.success(res.message);
         if (res.state) {
           const xpInp = document.getElementById('input-xp');
@@ -130,6 +152,7 @@ class SuiteApp {
         xp: xp,
       });
       if (res.success) {
+        this.dirtyLevel.delete('input-xp');
         window.toast.success(res.message);
         if (res.state) {
           const lvlInp = document.getElementById('input-level');
@@ -168,6 +191,8 @@ class SuiteApp {
 
       if (document.getElementById('input-level')) document.getElementById('input-level').value = lvl;
       if (document.getElementById('input-xp')) document.getElementById('input-xp').value = xp;
+      this.dirtyLevel.delete('input-level');
+      this.dirtyLevel.delete('input-xp');
       this.lastLevelEditTime = Date.now();
 
       if (!this.isAttached) {
@@ -214,36 +239,120 @@ class SuiteApp {
     });
 
     // 2. Currencies & Shards
-    document.getElementById('btn-apply-currencies')?.addEventListener('click', async () => {
-      const payload = {
-        bits: parseInt(document.getElementById('input-bits')?.value) || 0,
-        gems: parseInt(document.getElementById('input-gems')?.value) || 0,
-        hearts: parseInt(document.getElementById('input-hearts')?.value) || 0,
-        friendship_hearts: parseInt(document.getElementById('input-friendship-hearts')?.value) || 0,
-        shards: {
-          loyalty: parseInt(document.getElementById('input-shard-loyalty')?.value) || 0,
-          kindness: parseInt(document.getElementById('input-shard-kindness')?.value) || 0,
-          honesty: parseInt(document.getElementById('input-shard-honesty')?.value) || 0,
-          generosity: parseInt(document.getElementById('input-shard-generosity')?.value) || 0,
-          laughter: parseInt(document.getElementById('input-shard-laughter')?.value) || 0,
-          magic: parseInt(document.getElementById('input-shard-magic')?.value) || 0,
-        },
-      };
+    this.currencyInputIds.forEach((id) => {
+      const inp = document.getElementById(id);
+      if (!inp) return;
 
-      const res = await window.api.post('/api/mechanic/currency', payload);
-      if (res.success) window.toast.success(res.message);
+      inp.addEventListener('input', () => {
+        const val = parseInt(inp.value, 10);
+        if (!isNaN(val) && this.liveCurrencies[id] !== undefined && val === this.liveCurrencies[id]) {
+          this.dirtyCurrencies.delete(id);
+          inp.classList.remove('input-dirty');
+        } else {
+          this.dirtyCurrencies.add(id);
+          inp.classList.add('input-dirty');
+        }
+        this.updateCurrencyBadge();
+      });
+
+      inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          document.getElementById('btn-apply-currencies')?.click();
+        }
+      });
+    });
+
+    document.getElementById('btn-apply-currencies')?.addEventListener('click', async () => {
+      const applyBtn = document.getElementById('btn-apply-currencies');
+      if (applyBtn) {
+        applyBtn.disabled = true;
+        applyBtn.textContent = 'Applying...';
+      }
+
+      try {
+        const payload = {
+          bits: parseInt(document.getElementById('input-bits')?.value) || 0,
+          gems: parseInt(document.getElementById('input-gems')?.value) || 0,
+          hearts: parseInt(document.getElementById('input-hearts')?.value) || 0,
+          friendship_hearts: parseInt(document.getElementById('input-friendship-hearts')?.value) || 0,
+          shards: {
+            loyalty: parseInt(document.getElementById('input-shard-loyalty')?.value) || 0,
+            kindness: parseInt(document.getElementById('input-shard-kindness')?.value) || 0,
+            honesty: parseInt(document.getElementById('input-shard-honesty')?.value) || 0,
+            generosity: parseInt(document.getElementById('input-shard-generosity')?.value) || 0,
+            laughter: parseInt(document.getElementById('input-shard-laughter')?.value) || 0,
+            magic: parseInt(document.getElementById('input-shard-magic')?.value) || 0,
+          },
+        };
+
+        const res = await window.api.post('/api/mechanic/currency', payload);
+        if (res.success) {
+          this.lastCurrencyApplyTime = Date.now();
+          this.dirtyCurrencies.clear();
+          this.currencyInputIds.forEach((id) => {
+            const inp = document.getElementById(id);
+            if (inp) inp.classList.remove('input-dirty');
+          });
+
+          if (res.state && res.state.currencies) {
+            const c = res.state.currencies;
+            const s = res.state.shards || {};
+            this.liveCurrencies['input-bits'] = c.bits;
+            this.liveCurrencies['input-gems'] = c.gems;
+            this.liveCurrencies['input-hearts'] = c.hearts;
+            this.liveCurrencies['input-friendship-hearts'] = c.friendship_hearts;
+            if (s) {
+              for (const [k, v] of Object.entries(s)) {
+                this.liveCurrencies[`input-shard-${k}`] = v;
+              }
+            }
+          }
+
+          this.updateCurrencyBadge();
+          window.toast.success(res.message);
+        } else {
+          window.toast.error(res.message);
+        }
+      } catch (err) {
+        console.error('Failed applying currencies:', err);
+      } finally {
+        if (applyBtn) {
+          applyBtn.disabled = false;
+          applyBtn.textContent = 'Apply Currencies';
+        }
+      }
     });
 
     document.getElementById('btn-max-currencies')?.addEventListener('click', () => {
-      document.getElementById('input-bits').value = 999999999;
-      document.getElementById('input-gems').value = 999999;
-      document.getElementById('input-hearts').value = 99999;
-      document.getElementById('input-friendship-hearts').value = 99999;
-      ['loyalty', 'kindness', 'honesty', 'generosity', 'laughter', 'magic'].forEach((s) => {
-        const el = document.getElementById(`input-shard-${s}`);
-        if (el) el.value = 9999;
-      });
+      const maxValues = {
+        'input-bits': 999999999,
+        'input-gems': 999999,
+        'input-hearts': 99999,
+        'input-friendship-hearts': 99999,
+        'input-shard-loyalty': 9999,
+        'input-shard-kindness': 9999,
+        'input-shard-honesty': 9999,
+        'input-shard-generosity': 9999,
+        'input-shard-laughter': 9999,
+        'input-shard-magic': 9999,
+      };
+
+      for (const [id, val] of Object.entries(maxValues)) {
+        const inp = document.getElementById(id);
+        if (inp) {
+          inp.value = val;
+          this.dirtyCurrencies.add(id);
+          inp.classList.add('input-dirty');
+        }
+      }
+      this.updateCurrencyBadge();
       window.toast.info('Populated maximum safe currency values. Click Apply to write.');
+    });
+
+    document.getElementById('btn-reset-currencies')?.addEventListener('click', () => {
+      this.resetCurrenciesToLive();
+      window.toast.info('Restored live currency values from game RAM.');
     });
 
     // 3. Profile Customizations (743 Items)
@@ -264,6 +373,12 @@ class SuiteApp {
       if (res.success) window.toast.success(res.message);
     });
 
+    ['pins', 'buttons', 'twine', 'ribbons', 'bows'].forEach((m) => {
+      document.getElementById(`input-mat-${m}`)?.addEventListener('input', () => {
+        this.dirtyMaterials.add(m);
+      });
+    });
+
     document.getElementById('btn-apply-materials')?.addEventListener('click', async () => {
       const payload = {
         materials: {
@@ -275,25 +390,42 @@ class SuiteApp {
         },
       };
       const res = await window.api.post('/api/mechanic/costumes', payload);
-      if (res.success) window.toast.success(res.message);
+      if (res.success) {
+        this.dirtyMaterials.clear();
+        window.toast.success(res.message);
+      }
     });
 
     document.getElementById('btn-max-materials')?.addEventListener('click', () => {
       ['pins', 'buttons', 'twine', 'ribbons', 'bows'].forEach((m) => {
         const el = document.getElementById(`input-mat-${m}`);
         if (el) el.value = 9999;
+        this.dirtyMaterials.add(m);
       });
       window.toast.info('Populated 9,999 for all crafting materials.');
     });
 
     // 5. Group Quests Keys (Decoupled)
+    document.getElementById('input-gq-keys')?.addEventListener('input', () => {
+      this.dirtyGqKeys = true;
+    });
+
     document.getElementById('btn-apply-gq-keys')?.addEventListener('click', async () => {
       const keys = parseInt(document.getElementById('input-gq-keys')?.value) || 0;
       const res = await window.api.post('/api/mechanic/group_quests', { keys: keys });
-      if (res.success) window.toast.success(res.message);
+      if (res.success) {
+        this.dirtyGqKeys = false;
+        window.toast.success(res.message);
+      }
     });
 
     // 6. Active Boosters
+    ['xp-time', 'bits-time', 'xp-mult', 'bits-mult'].forEach((k) => {
+      document.getElementById(`input-booster-${k}`)?.addEventListener('input', () => {
+        this.dirtyBoosters.add(`input-booster-${k}`);
+      });
+    });
+
     document.getElementById('btn-apply-boosters')?.addEventListener('click', async () => {
       const payload = {
         xp_time: parseFloat(document.getElementById('input-booster-xp-time')?.value) || 0,
@@ -302,7 +434,10 @@ class SuiteApp {
         bits_mult: parseFloat(document.getElementById('input-booster-bits-mult')?.value) || 1.0,
       };
       const res = await window.api.post('/api/mechanic/boosters', payload);
-      if (res.success) window.toast.success(res.message);
+      if (res.success) {
+        this.dirtyBoosters.clear();
+        window.toast.success(res.message);
+      }
     });
 
     document.getElementById('btn-preset-boosters')?.addEventListener('click', () => {
@@ -310,6 +445,9 @@ class SuiteApp {
       document.getElementById('input-booster-bits-time').value = 86400;
       document.getElementById('input-booster-xp-mult').value = 2.0;
       document.getElementById('input-booster-bits-mult').value = 2.0;
+      ['input-booster-xp-time', 'input-booster-bits-time', 'input-booster-xp-mult', 'input-booster-bits-mult'].forEach((id) => {
+        this.dirtyBoosters.add(id);
+      });
       window.toast.info('Populated 24-hour (86,400s) 2.0x Boosters.');
     });
 
@@ -465,7 +603,7 @@ class SuiteApp {
     if (this.isAttached && !verInfo.is_match && !this.mismatchOverridden) {
       if (this.elMismatchBanner) this.elMismatchBanner.classList.add('show');
       if (this.elMismatchDetected) this.elMismatchDetected.textContent = verInfo.detected_version || 'Unknown';
-      if (this.elMismatchExpected) this.elMismatchExpected.textContent = verInfo.expected_version || 'v11.4.2a';
+      if (this.elMismatchExpected) this.elMismatchExpected.textContent = verInfo.expected_version || 'v11.5.0';
     } else {
       if (this.elMismatchBanner) this.elMismatchBanner.classList.remove('show');
     }
@@ -482,10 +620,10 @@ class SuiteApp {
     // 1. Level & XP
     if (data.level && data.level.available) {
       const lvlInp = document.getElementById('input-level');
-      if (lvlInp && activeEl !== lvlInp && !recentlyEditedLevel) lvlInp.value = data.level.level;
+      if (lvlInp && activeEl !== lvlInp && !this.dirtyLevel.has('input-level')) lvlInp.value = data.level.level;
 
       const xpInp = document.getElementById('input-xp');
-      if (xpInp && activeEl !== xpInp && !recentlyEditedLevel) xpInp.value = data.level.xp;
+      if (xpInp && activeEl !== xpInp && !this.dirtyLevel.has('input-xp')) xpInp.value = data.level.xp;
 
       const lvlBadge = document.getElementById('level-badge-display');
       if (lvlBadge) lvlBadge.textContent = `Lvl ${data.level.level} (${data.level.xp_percentage}%)`;
@@ -510,11 +648,25 @@ class SuiteApp {
       };
 
       for (const [id, val] of Object.entries(map)) {
-        const inp = document.getElementById(id);
-        if (inp && activeEl !== inp && val !== undefined) {
-          inp.value = val;
+        if (val !== undefined) {
+          this.liveCurrencies[id] = val;
         }
       }
+
+      const isRecentlyApplied = (now - this.lastCurrencyApplyTime) < 2000;
+
+      for (const [id, val] of Object.entries(map)) {
+        const inp = document.getElementById(id);
+        if (inp && val !== undefined) {
+          const isFocused = (activeEl === inp);
+          const isDirty = this.dirtyCurrencies.has(id);
+          if (!isFocused && !isDirty && !isRecentlyApplied) {
+            inp.value = val;
+          }
+        }
+      }
+
+      this.updateCurrencyBadge();
     }
 
     // 3. Profile Customizations
@@ -552,7 +704,7 @@ class SuiteApp {
       const mats = data.costumes.materials || {};
       ['pins', 'buttons', 'twine', 'ribbons', 'bows'].forEach((m) => {
         const inp = document.getElementById(`input-mat-${m}`);
-        if (inp && activeEl !== inp && mats[m] !== undefined) {
+        if (inp && activeEl !== inp && !this.dirtyMaterials.has(m) && mats[m] !== undefined) {
           inp.value = mats[m];
         }
       });
@@ -561,7 +713,7 @@ class SuiteApp {
     // 5. Group Quests Keys
     if (data.group_quests && data.group_quests.available) {
       const gqInp = document.getElementById('input-gq-keys');
-      if (gqInp && activeEl !== gqInp && data.group_quests.keys !== undefined) {
+      if (gqInp && activeEl !== gqInp && !this.dirtyGqKeys && data.group_quests.keys !== undefined) {
         gqInp.value = data.group_quests.keys;
       }
     }
@@ -577,7 +729,7 @@ class SuiteApp {
       };
       for (const [id, val] of Object.entries(bMap)) {
         const inp = document.getElementById(id);
-        if (inp && activeEl !== inp && val !== undefined) {
+        if (inp && activeEl !== inp && !this.dirtyBoosters.has(id) && val !== undefined) {
           inp.value = val;
         }
       }
@@ -707,6 +859,40 @@ class SuiteApp {
       if (el.closest('.xp-dropdown-section')) return;
       el.disabled = isLocked;
     });
+  }
+
+  resetCurrenciesToLive() {
+    this.dirtyCurrencies.clear();
+    this.currencyInputIds.forEach((id) => {
+      const inp = document.getElementById(id);
+      if (inp) {
+        inp.classList.remove('input-dirty');
+        if (this.liveCurrencies[id] !== undefined) {
+          inp.value = this.liveCurrencies[id];
+        }
+      }
+    });
+    this.updateCurrencyBadge();
+  }
+
+  updateCurrencyBadge() {
+    const badge = document.getElementById('currency-status-badge');
+    if (!badge) return;
+
+    if (!this.isAttached) {
+      badge.textContent = 'DETACHED';
+      badge.className = 'meta-pill status-detached';
+      return;
+    }
+
+    const count = this.dirtyCurrencies.size;
+    if (count > 0) {
+      badge.textContent = `${count} MODIFIED`;
+      badge.className = 'meta-pill status-modified';
+    } else {
+      badge.textContent = 'LIVE SYNCED';
+      badge.className = 'meta-pill status-attached';
+    }
   }
 }
 

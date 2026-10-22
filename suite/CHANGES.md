@@ -27,6 +27,12 @@ Updated for game build **11.5.0** (package 11.5.0.0).
   FashionPage visibility gates (`0x2FBD05`…`0x2FC173`). Reveals hidden/event costume sets and
   lets them be put on. (The earlier port mis-identified IsPartOwned; corrected here.)
 
+## WebUI Input Safeguards
+- Fixed currency editor input overwriting: background memory polling (every 2.5s) no longer overwrites user input while editing or after staging max safe values.
+- Staged/dirty input values are preserved until user clicks Apply or Reset.
+- Added visual modified indicator badge (`[N] MODIFIED`), field highlight borders, a "Reset to Live" action button, and Enter key application support.
+- Extended the same dirty-state protection to Player Level/XP, Crafting Materials, Boosters, and Group Quests keys.
+
 ## Known follow-ups
 - A few niche store hooks (ACTION_POSSIBLE detour, BUYABILITY/BUY_HOUSE best-guesses) are
   disabled; store rotation + purchase work without them.

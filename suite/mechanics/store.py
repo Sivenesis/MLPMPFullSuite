@@ -78,7 +78,7 @@ class StoreMechanic(BaseMechanic):
 
     def get_shop_catalog(self, refresh_from_ram: bool = False) -> Dict[str, Any]:
         """
-        Returns complete 2,381-pony catalog for game version 11.4.2a.
+        Returns complete 2,418-pony catalog for game version 11.5.0.
         Enriches with live b125 visibility and active states from RAM if attached.
         Operates 100% offline from data/ponies_catalog.json.
         """

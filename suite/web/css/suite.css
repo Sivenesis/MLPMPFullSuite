@@ -115,6 +115,12 @@ body {
   border-color: rgba(16, 185, 129, 0.3);
 }
 
+.meta-pill.status-modified {
+  background-color: rgba(245, 158, 11, 0.12);
+  color: var(--accent-amber);
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
 .header-actions {
   display: flex;
   align-items: center;
@@ -350,6 +356,16 @@ body {
 
 .form-control:focus {
   border-color: var(--border-accent);
+}
+
+.form-control.input-dirty {
+  border-color: var(--accent-amber);
+  background-color: rgba(245, 158, 11, 0.05);
+}
+
+.form-control.input-dirty:focus {
+  border-color: #fbbf24;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
 }
 
 .checkbox-group {

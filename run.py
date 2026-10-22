@@ -1,5 +1,5 @@
 """
-MLPMP Full Suite v2.1.1 - Root Launcher Entrypoint.
+MLPMP Full Suite v2.2.0 - Root Launcher Entrypoint.
 Redirects execution to suite/ architecture.
 """
 import os
