@@ -66,15 +66,30 @@ royalclub/boosters/ferris/tokenlist; LevelManager level/XP; FSM fields; Store re
 - HOOK_BUY_HOUSE_CHECK (best-guess 0x67E2E3/0x67E076): never verified; niche housing feature.
 - RVA_CAN_PLACE_STUB 0x62EE40 (best-guess): remediation-only (acts only if it sees B0 01 C3), low risk.
 
-### ❌ COSTUMES — NOT RESOLVED (subsystem changed substantially in 11.5.0):
-- RVA_PART_OWNED 0x668A90 was WRONG (it's a setter: reads [this+0x88], vcall, stores arg).
-- RVA_SET_COMPLETE 0x958270 was WRONG (string/data processor with mov [0],0xDEAD assert).
-- COSTUME_VIS 0x2FBD05.. are in the real FashionPage fn 0x2FBAF0 (confirmed via "FashionPage"
-  string xref @0x2FBBA9) BUT are UI display-value reads, not the visibility gate.
-- Co-test: forcing those did NOT reveal hidden costumes. PonyPartsManager ownership is in
-  red-black trees (sentinels at obj+0x1B0+), impractical to bulk-edit via writes.
-- offsets.py: costume hooks set to out-of-image sentinel (safe no-op) until re-derived.
-- NEEDS: find real hidden-costume visibility gate / costume-set "revealed" flag. Focused sub-project.
+### ◐ COSTUMES — PARTIAL (hidden sets can be made to APPEAR; obtaining them is event-gated):
+System = Pony Editor / Collection Book. Sets have states crafted/locked/notCrafted, prices
+(SetPrice), Buy/Craft actions (Native_BuyPonySet). StateFashion state id = 0x4C (ctor 0x812880);
+pony editor active state observed as id 0x40.
+
+RESOLVED — make hidden sets APPEAR (co-tested working):
+- Set-visibility filter is in the population loop at 0x2FE9A0: a set shows iff
+  CostumeSet CHECK_A(0x957200, owned flag set+0x79) OR CHECK_B(0x9573B0, avail flag set+0x8a).
+  Hidden sets fail both and are skipped (je).
+- **Patch CHECK_B (0x9573B0, orig 48 89 5C 24 10 -> B0 01 C3 90 90 = mov al,1;ret) makes ALL
+  hidden sets APPEAR.** Confirmed live for Sunburst. ⚠️ feeds a set-count tally; watch progress math.
+
+BLOCKED — obtaining them:
+- Appeared sets are EVENT sets: show "craft" + "Check events every day..." (pieces not available;
+  no buy path by design). Goal was "buyable" but these have no buy flow.
+- CHECK_A (0x957200, owned fn) patch = no visible effect (display reads data, not the fn).
+- Set-button display fn 0x2FA4F0 reads owned flag DIRECTLY at 0x2FA5F6 (movzx [rsi+0x79]) +
+  prices at set+0x98/+0x9c; forcing that read to 1 did NOT change "craft" -> Scaleform keys the
+  crafted/locked/notCrafted frame off a different field. The label strings sit at 0x1589368/70/78
+  (crafted/locked/notCrafted); state-label selection refs at 0x844B18, 0x6A9A63 (needs tracing).
+- NEEDS NEXT: trace the actual frame-label selection (how set-state -> crafted/notCrafted),
+  OR force piece ownership so craft works, OR find a real buy-enable for event sets. Live experiment
+  patches (0x9573B0, 0x2FA5F6, 0x957200) were reverted; NONE baked into offsets.py yet.
+- offsets.py costume hooks remain sentinel'd (safe no-op).
 
 ### ✅ DONE deliverables:
 - `suite/data/ponies_catalog.json` → 2418 ponies, v11.5.0 (38 new, regenerated from live RAM).
