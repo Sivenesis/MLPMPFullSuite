@@ -1,5 +1,8 @@
 # Reverse-Engineering & Research Documentation
-## Target Build: *My Little Pony: Magic Princess* (Windows x64 / v11.4.2a)
+## Target Build: *My Little Pony: Magic Princess* (Windows x64 / v11.5.0)
+> Note: the memory structures below were first documented on build v11.4.2a. They are
+> unchanged on v11.5.0 — only module RVAs moved. The current 11.5.0 RVAs live in
+> `core/offsets.py`; see `OFFSETS_1150_WIP.md` for the re-offset evidence trail.
 ### MLPMP Full Suite Architecture & Technical Reference
 
 ---

@@ -16,8 +16,8 @@ A lightweight, non-invasive, live RAM memory editor and trainer Suite for *My Li
 - **Active Boosters**: Adjust duration timers and multiplier ratios for active XP and Bits boosters.
 - **Find a Pair Minigame**: Freeze game timer and score multiplier, including a 'deny decrease' mode allowing multipliers to grow naturally while ignoring drops.
 - **Ferris Wheel Cooldown**: Instant bypass of the 1-hour wait timer for immediate free spins.
-- **Fortune Shop Refresh**: Instant roster re-roll with zero gem cost, 24-hour cooldown bypass, and synchronized Royal Club tier status.
-- **Store Editor & Catalog**: Searchable 2,381-character catalog with town, currency, and price filters, combined with store rotation patches for free or direct purchases.
+- **Fortune Shop Continuous Refresh**: Keeps the in-game 50-gem refresh button permanently available for unlimited paid roster re-rolls. Royal Club is never activated.
+- **Store Editor & Catalog**: Searchable 2,418-character catalog with town, currency, and price filters, combined with store rotation patches for free or direct purchases.
 
 ---
 
@@ -53,8 +53,8 @@ The Profile Editor provides comprehensive management over player progression and
 
 ### Tab 2: Fortune Shop and Store Tweaks
 The Fortune Shop and Store Tweaks tab is dedicated to character acquisition and catalog management:
-- **Fortune Shop Roster Refresh**: A clean, singular refresh action that clears the 24-hour cooldown, forces an immediate roster re-roll, sets refresh costs to 0 or 50 Gems, and guarantees 100% rare character weights. This action synchronizes Royal Club status in memory, as required by the game engine for refresh functionality.
-- **Store Editor & Catalog**: Browse an offline, searchable database of 2,381 characters categorized across Ponyville, Canterlot, Sweet Apple Acres, Crystal Empire, and Klugetown. Filter by name, ID, town, currency, or price range. Apply store rotation patches to make unlisted and event-exclusive ponies buyable directly in the in-game shop.
+- **Fortune Shop Continuous Refresh**: A toggle that keeps the in-game 50-gem refresh button permanently available by neutralizing the daily paid-refresh counter (`FSM[+0x99]`) in memory. Re-roll the roster as many times as you like via the normal in-game button (50 Gems each) — Royal Club is never touched. Optional "Re-roll Roster Now" (one-shot) and "Force Rare odds" controls are also provided.
+- **Store Editor & Catalog**: Browse an offline, searchable database of 2,418 characters categorized across Ponyville, Canterlot, Sweet Apple Acres, Crystal Empire, and Klugetown. Filter by name, ID, town, currency, or price range. Apply store rotation patches to make unlisted and event-exclusive ponies buyable directly in the in-game shop.
 
 ### Modularity & Maintainability
 The Suite features a decoupled architecture where core Win32 memory routines (`core/memory.py`), memory mappings (`core/offsets.py`), and individual mechanic handlers (`mechanics/`) are isolated from the server and browser interface. When new game updates are released, maintainers and AI agents can adapt the Suite simply by updating centralized offset definitions without touching frontend or server code.
