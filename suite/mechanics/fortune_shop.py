@@ -1,50 +1,41 @@
 """
-Fortune Shop Refresh & Royal Club Synchronization Mechanic for MLPMP Full Suite.
-Provides a concise, one-click Fortune Shop roster refresh:
-- Clears the 24-hour cooldown
-- Re-rolls the character roster immediately
-- Sets refresh cost (0 vs 50 Gems)
-- Configures 100% Rare character drop weights
-- Synchronizes active Royal Club status (required by game engine for refresh functionality)
+Fortune Shop Continuous Refresh Mechanic for MLPMP Full Suite.
+
+Clean, Royal-Club-free approach (11.5.0):
+- Each paid refresh, the game's "mark refresh used" routine (0x4F98A0) writes FSM[+0x99]=1,
+  which hides the in-game 50-gem refresh button (daily paid-refresh limit). NOP'ing that single
+  7-byte write (RVA_FORTUNE_REFRESH_USED) means the counter never increments, so the green
+  50-gem button is ALWAYS available - the player re-rolls the roster for 50 gems as many times
+  as they like via the normal in-game button.
+- Royal Club is NEVER touched (unlike the legacy build, which force-flipped VIP status).
+- A single in-place code patch (not a background worker) - race-free and reverts cleanly.
+- Optional: force rare drop odds; one-shot immediate re-roll.
 """
 
-import time
 import struct
-from typing import Dict, Any, Optional, Tuple, List
+from typing import Dict, Any, Optional, Tuple
 from core.memory import mem
 from core.offsets import (
     RVA_FSM_POINTER,
-    RVA_PLAYER_MANAGER,
-    RVA_GAME_STATE,
     RVA_UI_INVALIDATE,
-    RVA_FORTUNE_VIS_CHECK,
-    RVA_FORTUNE_FREE_CHECK,
-    ORIG_FORTUNE_VIS,
-    ORIG_FORTUNE_FREE,
-    OFF_FSM_AVAILABLE,
+    RVA_FORTUNE_REFRESH_USED,
+    ORIG_FORTUNE_REFRESH_USED,
+    PATCH_FORTUNE_REFRESH_USED,
     OFF_FSM_RARITY_TREE,
     OFF_FSM_TOTAL_WEIGHT,
-    OFF_FSM_DAY_NUMBER,
     OFF_FSM_REFRESH_COST,
-    OFF_FSM_REQUIRED_LVL,
-    OFF_FSM_LAST_REFRESH,
-    OFF_FSM_FREE_AVAILABLE,
-    OFF_ROYAL_CLUB_BASE,
-    OFF_RC_IS_ACTIVE,
-    OFF_RC_EXPIRATION,
-    OFF_RC_TIER,
-    OFF_RC_TIER_ACTIVE,
+    OFF_FSM_DAY_NUMBER,
+    OFF_FSM_PAID_REFRESH_COUNT,
 )
 from mechanics.base import BaseMechanic
 
 
 class FortuneShopMechanic(BaseMechanic):
     name = "FortuneShopMechanic"
-    description = "Fortune Shop Roster Refresh & Cooldown Bypass"
-
-    ONE_YEAR_SECONDS = 365 * 86400
+    description = "Fortune Shop Continuous 50-Gem Refresh (no Royal Club)"
 
     def _resolve_fsm(self) -> Optional[int]:
+        """Double-dereference the FortuneShopManager singleton."""
         if not mem.is_attached() or not mem.module_base:
             return None
         p1 = mem.read_ptr(mem.module_base + RVA_FSM_POINTER)
@@ -55,153 +46,116 @@ class FortuneShopMechanic(BaseMechanic):
             return None
         return p2
 
+    def _is_continuous_applied(self) -> bool:
+        if not mem.is_attached() or not mem.module_base:
+            return False
+        cur = mem.read_bytes(mem.module_base + RVA_FORTUNE_REFRESH_USED, len(PATCH_FORTUNE_REFRESH_USED))
+        return cur == PATCH_FORTUNE_REFRESH_USED
+
     def get_state(self) -> Dict[str, Any]:
         state = {
             "available": False,
             "fsm_address": None,
             "cost": 50,
-            "is_free": False,
-            "cooldown_cleared": False,
-            "royal_club_active": False,
-            "force_rare": False,
+            "continuous_refresh": self._is_continuous_applied(),
+            "paid_refreshes_used": None,
         }
-
         fsm = self._resolve_fsm()
         if not fsm:
             return state
-
         state["available"] = True
         state["fsm_address"] = f"0x{fsm:X}"
-
-        cost = mem.read_u32(fsm + OFF_FSM_REFRESH_COST) or 50
-        last_ts = mem.read_u64(fsm + OFF_FSM_LAST_REFRESH) or 0
-        state["cost"] = cost
-        state["is_free"] = (cost == 0)
-        state["cooldown_cleared"] = (last_ts == 0)
-
-        # Check Royal Club status
-        pm_addr = self.get_player_manager_addr()
-        if pm_addr:
-            rc_active = mem.read_u8(pm_addr + OFF_ROYAL_CLUB_BASE + OFF_RC_IS_ACTIVE)
-            state["royal_club_active"] = (rc_active == 1)
-
-        # Inspect rare weight at [FSM + 0x18]
-        sentinel = mem.read_ptr(fsm + OFF_FSM_RARITY_TREE)
-        if sentinel and mem.is_valid_user_ptr(sentinel):
-            root = mem.read_ptr(sentinel + 8)
-
-            def walk(n):
-                if not n or n == sentinel or not mem.is_valid_user_ptr(n):
-                    return []
-                is_nil = mem.read_u8(n + 0x19)
-                if is_nil:
-                    return []
-                res = []
-                res.extend(walk(mem.read_ptr(n)))
-                raw = mem.read_bytes(n, 0x30)
-                if raw:
-                    res.append(raw)
-                res.extend(walk(mem.read_ptr(n + 0x10)))
-                return res
-
-            for r in walk(root):
-                rid = struct.unpack_from("<I", r, 0x1C)[0]
-                w = struct.unpack_from("<I", r, 0x20)[0]
-                if rid == 2:  # Rare
-                    state["force_rare"] = (w >= 100)
-
+        state["cost"] = mem.read_u32(fsm + OFF_FSM_REFRESH_COST) or 50
+        state["paid_refreshes_used"] = mem.read_u8(fsm + OFF_FSM_PAID_REFRESH_COUNT)
         return state
+
+    def set_continuous_refresh(self, enable: bool) -> bool:
+        """Install/remove the NOP patch that stops the paid-refresh counter from incrementing."""
+        if not mem.is_attached() or not mem.module_base:
+            return False
+        addr = mem.module_base + RVA_FORTUNE_REFRESH_USED
+        if enable:
+            ok = mem.apply_patch(
+                "FORTUNE_REFRESH_USED", addr, PATCH_FORTUNE_REFRESH_USED, ORIG_FORTUNE_REFRESH_USED
+            )
+            # Clear the counter now so the button is immediately available.
+            fsm = self._resolve_fsm()
+            if fsm:
+                mem.write_u8(fsm + OFF_FSM_PAID_REFRESH_COUNT, 0)
+            return ok
+        return mem.restore_patch("FORTUNE_REFRESH_USED", addr, ORIG_FORTUNE_REFRESH_USED)
+
+    def set_force_rare(self, enable: bool) -> bool:
+        """Patch the rarity red-black tree weights (Rare=100 when enabled)."""
+        fsm = self._resolve_fsm()
+        if not fsm:
+            return False
+        sentinel = mem.read_ptr(fsm + OFF_FSM_RARITY_TREE)
+        if not sentinel or not mem.is_valid_user_ptr(sentinel):
+            return False
+        root = mem.read_ptr(sentinel + 8)
+
+        def walk(node):
+            if not node or node == sentinel or not mem.is_valid_user_ptr(node):
+                return []
+            if mem.read_u8(node + 0x19):  # nil sentinel
+                return []
+            res = []
+            res.extend(walk(mem.read_ptr(node)))
+            raw = mem.read_bytes(node, 0x30)
+            if raw:
+                res.append((node, raw))
+            res.extend(walk(mem.read_ptr(node + 0x10)))
+            return res
+
+        ok = True
+        for n_addr, raw in walk(root):
+            r_id = struct.unpack_from("<I", raw, 0x1C)[0]
+            if enable:
+                target_w = 100 if r_id == 2 else 0            # Rare only
+            else:
+                target_w = 50 if r_id == 0 else 35 if r_id == 1 else 15
+            ok &= mem.write_u32(n_addr + 0x20, target_w)
+        mem.write_u32(fsm + OFF_FSM_TOTAL_WEIGHT, 100)
+        return ok
+
+    def refresh_now(self) -> bool:
+        """One-shot immediate re-roll via the 'new day' trick (no Royal Club)."""
+        fsm = self._resolve_fsm()
+        if not fsm:
+            return False
+        ok = True
+        ok &= mem.write_u8(fsm + OFF_FSM_PAID_REFRESH_COUNT, 0)
+        ok &= mem.write_u64(fsm + OFF_FSM_DAY_NUMBER, 0)
+        mem.write_bytes(mem.module_base + RVA_UI_INVALIDATE, struct.pack("<i", -1))
+        return ok
 
     def apply(self, payload: Dict[str, Any] = None) -> Tuple[bool, str]:
         if payload is None:
             payload = {}
+        if not mem.is_attached():
+            return False, "Not attached to game process."
 
-        fsm = self._resolve_fsm()
-        if not fsm:
-            return False, "FortuneShopManager singleton not found in memory."
+        actions = []
 
-        cost = payload.get("cost", 0)
-        force_rare = payload.get("force_rare", True)
-        target_cost = max(0, min(int(cost), 9999))
+        if payload.get("continuous_refresh") is not None:
+            want = bool(payload["continuous_refresh"])
+            if self.set_continuous_refresh(want):
+                actions.append(f"Continuous 50-gem refresh -> {'ON' if want else 'OFF'}")
 
-        base = mem.module_base
+        if payload.get("force_rare") is not None:
+            if self.set_force_rare(bool(payload["force_rare"])):
+                actions.append(f"Rare odds -> {'ON' if payload['force_rare'] else 'OFF'}")
 
-        ok = True
+        if payload.get("refresh_now"):
+            if self.refresh_now():
+                actions.append("Immediate re-roll triggered")
 
-        # 1. Restore vanilla code bytes in FortuneShopDialog::Update to ensure native execution
-        ok &= mem.write_bytes(base + RVA_FORTUNE_VIS_CHECK, ORIG_FORTUNE_VIS)
-        ok &= mem.write_bytes(base + RVA_FORTUNE_FREE_CHECK, ORIG_FORTUNE_FREE)
-
-        # 2. Activate Royal Club / VIP membership at [ResourceManager + 0xDA0]
-        # Required because Fortune Shop refresh is natively an exclusive Royal Club perk.
-        pm_addr = self.get_player_manager_addr()
-        if pm_addr:
-            rc_addr = pm_addr + OFF_ROYAL_CLUB_BASE
-            safe_future_ts = int(time.time()) + self.ONE_YEAR_SECONDS
-            ok &= mem.write_u8(rc_addr + OFF_RC_IS_ACTIVE, 1)
-            ok &= mem.write_u64(rc_addr + OFF_RC_EXPIRATION, safe_future_ts)
-            ok &= mem.write_u8(rc_addr + OFF_RC_TIER, 1)       # Tier 2
-            ok &= mem.write_u8(rc_addr + OFF_RC_TIER_ACTIVE, 1)
-        else:
-            ok = False
-
-        # 3. Patch FortuneShopManager fields
-        ok &= mem.write_u8(fsm + OFF_FSM_AVAILABLE, 1)
-        ok &= mem.write_u32(fsm + OFF_FSM_REFRESH_COST, target_cost)
-        ok &= mem.write_u32(fsm + OFF_FSM_REQUIRED_LVL, 1)
-        ok &= mem.write_u64(fsm + OFF_FSM_LAST_REFRESH, 0)     # Clear 24h cooldown
-        ok &= mem.write_u8(fsm + OFF_FSM_FREE_AVAILABLE, 0)
-
-        # 4. Reset GameState + 0x13DA (FortuneShopRefreshSeen)
-        gs_ptr = mem.read_ptr(base + RVA_GAME_STATE)
-        if gs_ptr and mem.is_valid_user_ptr(gs_ptr):
-            ok &= mem.write_u8(gs_ptr + 0x13DA, 0)
-
-        # 5. Invalidate UI cache at [base + RVA_UI_INVALIDATE] to show refresh button immediately
-        ok &= mem.write_bytes(base + RVA_UI_INVALIDATE, struct.pack("<i", -1))
-
-        # 6. Patch Rarity Weights at [FSM + 0x18]
-        sentinel = mem.read_ptr(fsm + OFF_FSM_RARITY_TREE)
-        if sentinel and mem.is_valid_user_ptr(sentinel):
-            root = mem.read_ptr(sentinel + 8)
-
-            def walk_nodes(node):
-                if not node or node == sentinel or not mem.is_valid_user_ptr(node):
-                    return []
-                is_nil = mem.read_u8(node + 0x19)
-                if is_nil:
-                    return []
-                res = []
-                res.extend(walk_nodes(mem.read_ptr(node)))
-                raw_node = mem.read_bytes(node, 0x30)
-                if raw_node:
-                    res.append((node, raw_node))
-                res.extend(walk_nodes(mem.read_ptr(node + 0x10)))
-                return res
-
-            for n_addr, raw_node in walk_nodes(root):
-                r_id = struct.unpack_from("<I", raw_node, 0x1C)[0]
-                if force_rare:
-                    target_w = 100 if r_id == 2 else 0
-                else:
-                    target_w = 50 if r_id == 0 else 35 if r_id == 1 else 15
-                ok &= mem.write_u32(n_addr + 0x20, target_w)
-
-            ok &= mem.write_u32(fsm + OFF_FSM_TOTAL_WEIGHT, 100)
-
-        # 7. Crucial: Write 0 to [fsm + 0x78] (day_number)
-        # Causes native Update (vfunc[4] at 0x4FC282) to detect day 0 != today,
-        # immediately rolling a fresh roster and saving today's day number!
-        ok &= mem.write_u64(fsm + OFF_FSM_DAY_NUMBER, 0)
-
-        if ok:
-            msg = "Fortune Shop refreshed (24-hour cooldown cleared, roster re-rolled, Royal Club synchronized)."
+        if actions:
+            msg = "; ".join(actions)
             mem.log("SUCCESS", f"[Fortune] {msg}")
             return True, msg
-        else:
-            msg = "Fortune Shop refresh partially failed (one or more memory writes could not be completed)."
-            mem.log("WARN", f"[Fortune] {msg}")
-            return False, msg
+        return False, "No fortune shop parameters provided."
 
 
 fortune_shop_mechanic = FortuneShopMechanic()

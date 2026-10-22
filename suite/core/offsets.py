@@ -240,6 +240,13 @@ VANILLA_CAN_PLACE_BYTES = b"\x48\x89\x5c\x24\x08"
 # =============================================================================
 RVA_FORTUNE_VIS_CHECK  = 0x81DA7C  # 2 bytes: je (\x74\x04)                        (11.4.2a: 0x81D90C)
 RVA_FORTUNE_FREE_CHECK = 0x81DA8B  # 7 bytes: cmp r8d, 2; sete al (\x41\x83\xF8\x02\x0F\x94\xC0)  (11.4.2a: 0x81D91B)
+
+# Continuous paid refresh (11.5.0): the "mark refresh used" fn (0x4F98A0) sets FSM[+0x99]=1
+# after each paid refresh, which hides the 50-gem button. NOP'ing that single write keeps the
+# counter at 0 so the in-game 50-gem button is ALWAYS available - no Royal Club, no cooldown clear.
+RVA_FORTUNE_REFRESH_USED   = 0x4F98A9
+ORIG_FORTUNE_REFRESH_USED  = b"\xc6\x81\x99\x00\x00\x00\x01"  # mov byte [rcx+0x99], 1
+PATCH_FORTUNE_REFRESH_USED = b"\x90\x90\x90\x90\x90\x90\x90"  # 7x nop
 ORIG_FORTUNE_VIS       = b"\x74\x04"
 ORIG_FORTUNE_FREE      = b"\x41\x83\xf8\x02\x0f\x94\xc0"
 
@@ -250,6 +257,9 @@ OFF_FSM_DAY_NUMBER     = 0x78      # uint64
 OFF_FSM_REFRESH_COST   = 0x84      # uint32
 OFF_FSM_REQUIRED_LVL   = 0x88      # uint32
 OFF_FSM_LAST_REFRESH   = 0x90      # uint64 (timestamp)
+OFF_FSM_PAID_REFRESH_COUNT = 0x99  # uint8: paid refreshes done today; >=1 hides the 50-gem button.
+                                   # Keeping this at 0 keeps the paid refresh continuously available
+                                   # WITHOUT touching Royal Club (11.5.0; verified by live FSM diff).
 OFF_FSM_FREE_AVAILABLE = 0x9A      # uint8
 
 # Royal Club at [ResourceManager + 0xDA0]

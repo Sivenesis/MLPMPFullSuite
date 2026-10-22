@@ -356,10 +356,22 @@ class SuiteApp {
     // Tab 2: Fortune Shop & Store Tweaks Bindings
     // =========================================================================
     document.getElementById('btn-refresh-fortune-shop')?.addEventListener('click', async () => {
-      const res = await window.api.post('/api/mechanic/fortune_shop', {
-        cost: 0,
-        force_rare: true,
-      });
+      const res = await window.api.post('/api/mechanic/fortune_shop', { refresh_now: true });
+      if (res.success) window.toast.success(res.message);
+    });
+
+    document.getElementById('checkbox-continuous-refresh')?.addEventListener('change', async (e) => {
+      const res = await window.api.post('/api/mechanic/fortune_shop', { continuous_refresh: e.target.checked });
+      if (res.success) {
+        window.toast.success(res.message);
+      } else {
+        window.toast.error(res.message);
+        e.target.checked = !e.target.checked;
+      }
+    });
+
+    document.getElementById('checkbox-force-rare')?.addEventListener('change', async (e) => {
+      const res = await window.api.post('/api/mechanic/fortune_shop', { force_rare: e.target.checked });
       if (res.success) window.toast.success(res.message);
     });
   }
@@ -620,11 +632,13 @@ class SuiteApp {
     // 9. Fortune Shop
     if (data.fortune_shop) {
       const fs = data.fortune_shop;
-      const rcBadge = document.getElementById('fortune-rc-badge');
-      if (rcBadge) {
-        rcBadge.textContent = fs.royal_club_active ? 'ROYAL CLUB ACTIVE' : 'STANDARD';
-        rcBadge.className = fs.royal_club_active ? 'meta-pill status-attached' : 'meta-pill';
+      const badge = document.getElementById('fortune-refresh-badge');
+      if (badge) {
+        badge.textContent = fs.continuous_refresh ? 'CONTINUOUS ON' : 'STANDARD';
+        badge.className = fs.continuous_refresh ? 'meta-pill status-attached' : 'meta-pill';
       }
+      const chk = document.getElementById('checkbox-continuous-refresh');
+      if (chk && document.activeElement !== chk) chk.checked = !!fs.continuous_refresh;
     }
 
     // 10. Store Hooks Badge

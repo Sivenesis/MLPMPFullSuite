@@ -330,17 +330,25 @@
     <!-- TAB 2: FORTUNE SHOP & STORE TWEAKS -->
     <section id="tab-store" class="tab-panel">
 
-      <!-- Section 1: Fortune Shop Refresh (Concise) -->
+      <!-- Section 1: Fortune Shop Continuous Refresh -->
       <div class="card" style="margin-bottom: 20px;">
         <div class="card-title">
           <span>Fortune Shop Refresh</span>
-          <span class="meta-pill" id="fortune-rc-badge">---</span>
+          <span class="meta-pill" id="fortune-refresh-badge">---</span>
         </div>
         <div class="notice-box">
-          Notice: Performing a Fortune Shop refresh clears the 24-hour shop cooldown timer instantly, rolls a fresh roster, and forces active Royal Club tier status required natively by the game engine.
+          Continuous Refresh keeps the in-game <strong>50-gem</strong> refresh button permanently available by resetting the daily paid-refresh limit. Re-roll the Fortune Shop roster as many times as you like using the normal in-game button (50 gems each). Royal Club is never activated.
         </div>
+        <label class="checkbox-group" style="margin-top: 12px;">
+          <input type="checkbox" id="checkbox-continuous-refresh">
+          <span>Continuous 50-gem Refresh (keep the in-game button always available)</span>
+        </label>
+        <label class="checkbox-group" style="margin-top: 6px;">
+          <input type="checkbox" id="checkbox-force-rare">
+          <span>Force Rare drop odds</span>
+        </label>
         <div class="card-actions" style="margin-top: 12px;">
-          <button id="btn-refresh-fortune-shop" class="btn btn-primary">Refresh Fortune Shop Now</button>
+          <button id="btn-refresh-fortune-shop" class="btn btn-primary">Re-roll Roster Now</button>
         </div>
       </div>
 
