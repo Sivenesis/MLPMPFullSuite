@@ -6,8 +6,8 @@
 > build. The **single source of truth for live addresses is [`suite/core/offsets.py`](suite/core/offsets.py)** —
 > every RVA and byte signature actually used by the running tool lives there. This file explains
 > *what those addresses mean, how they were found, and the mistakes that cost the most time* so
-> you do not repeat them. The re-offset evidence trail for 11.5.0 is in
-> [`OFFSETS_1150_WIP.md`](OFFSETS_1150_WIP.md).
+> you do not repeat them. The full re-offset evidence trail for 11.5.0 (per-address verification,
+> the costume investigation history, and the asset-extraction findings) is in **Appendix A** below.
 
 ---
 
@@ -391,6 +391,148 @@ across polls as of Suite 2.2.0.
 
 ---
 
+## Appendix A: 11.5.0 Re-Offset Evidence Trail
+
+This appendix is the working record of how the 11.5.0 addresses were derived and verified. It is kept
+inside this document on purpose so the evidence travels with the repo. Status markers: `[verified]`
+confirmed with evidence noted; `[probable]` strong static evidence, confirm live; `[history]` a
+dead-end or intermediate finding kept so it is not re-attempted.
+
+### A.1 Capture method and dump
+
+- Target: `MyLittlePony_x64.exe`, MSIX package **11.5.0.0**
+  (`A278AB0D.MyLittlePonynew_11.5.0.0_x64__h6adky7gbf63m`).
+- Method: live user-mode `ReadProcessMemory` dump of the loaded module image, so **file-offset == RVA**.
+  Capstone disassembly plus structural/value fingerprinting; where static analysis was ambiguous, a
+  VirtualAllocEx RWX code cave with a detour `jmp` logged live register state.
+- Dump at capture: base `0x7FF62D330000`, `SizeOfImage` `0x1C51000`. The module dump and analysis
+  scripts live in the session scratchpad (`scripts/rpm.py`, `inject.py`, `examine_sets.py`,
+  `own_sunburst.py`, `dump_module.py`); a re-dump is not needed for the same exe version.
+- All findings here are base-independent (module RVAs / struct offsets); only live heap addresses
+  change between launches.
+
+### A.2 Singleton verification evidence
+
+The `.data` singleton block shifted by roughly `-0x888x` from 11.4.2a but **not uniformly** (Player
+`-0x8880`, Level `-0x88E0`), so each pointer was individually confirmed:
+
+| Symbol | 11.4.2a | 11.5.0 | Evidence |
+| :-- | :-- | :-- | :-- |
+| `RVA_PLAYER_MANAGER` | 0x1A86EE0 | 0x1A7E660 | [verified] decrypts bits=777,893,899 gems=744,754 hearts=9,639 + 6 shards; all 9 containers validly encrypted |
+| `RVA_LEVEL_MANAGER` | 0x1A77CA8 | 0x1A6F3C8 | [verified] curXP=reqXP=60,107,610 level=200 max=200 (canonical maxed) |
+| `RVA_FSM_POINTER` | 0x1A85318 | 0x1A7CA98 | [verified] `[[slot]]` -> FSM totalWeight=100 avail=1 cost=50 reqLvl=35, valid rarity tree |
+| `RVA_SHOP_CONTROLLER` | 0x1A88740 | 0x1A7FEC0 | [verified] Store open: `+0x438/+0x440` -> 4470 records, 2419 ponies (cat==0x39) |
+| `RVA_UI_INVALIDATE` | 0x1A8C7A0 | 0x1A83F20 | [verified] flag slot written by fortune code; matches `-0x8880` delta |
+| `RVA_PONY_PARTS_MGR` | 0x1A798B8 | 0x1A70FD8 | [verified] confirmed at the costume (Pony Editor) patch test |
+| `RVA_TOWN_CONTROLLER` | 0x1A87DE8 | 0x1A7F568 | [probable] hot vtable slot (`-0x8880`); confirm on entering town |
+| `RVA_STATE_MANAGER` | 0x1A75338 | 0x1A6CA58 | [probable] vtable-in-module, matches `-0x88E0`; confirm with Find-a-Pair (state 102) |
+| `RVA_GAME_STATE` | 0x1AD79F0 | 0x1AD3630 | [verified] resolved (an early prediction `0x1ACF170` was wrong, held=15) |
+| `RVA_VERSION_STRING` | 0x154DC30 | 0x1548D90 | [verified] ASCII `"11.5.0"` |
+
+### A.3 Code-patch site evidence (.text was reordered; deltas non-uniform)
+
+| Hook | 11.4.2a | 11.5.0 | Evidence |
+| :-- | :-- | :-- | :-- |
+| `HOOK_ACTION_POSSIBLE` | 0x366600 | 0x368810 | [verified] unique AOB `40 57 48 83 EC 50 83 79 20 01`. RVA correct, but patch bytes end in rel jmp `E9 36 A6 89 00` computed for the old site; left disabled (see A.5) |
+| `HOOK_GET_CURRENCY` | 0x6C9760 | 0x6C88D0 | [verified] disasm is the ROR32-5 currency-type resolver; orig/patch unchanged |
+| `RVA_ZONE_CHECK` (do NOT patch) | 0x6C9730 | 0x6C88A0 | [verified] vanilla `4C 8B 41 40 48`, 0x30 before the currency resolver |
+| `RVA_FORTUNE_VIS_CHECK` | 0x81D90C | 0x81DA7C | [verified] `je` (`74 04`), 0xF before free-check |
+| `RVA_FORTUNE_FREE_CHECK` | 0x81D91B | 0x81DA8B | [verified] `cmp r8d,2; sete al` |
+| `HOOK_BUY_FRAME_CHECK` | 0x67E129 | 0x67C9F9 | [verified] unique AOB `0F 8E AC 01 00 00` |
+| `RVA_SORT_PRICE_STUB` | 0x68CEC1 | 0x68B931 | [verified] unique AOB `F3 41 0F 11 74 24 50` |
+| Profile gates x6 | 0x5B01F0... | 0x5AE6E0/7BF/82F/89F/94F/9BF | [verified] applied + confirmed live (all customizations unlocked) |
+| Store rotation x3 | 0x1301CD7 / 0x6A00F3 / 0x67C94F | 0x12FFD1C / 0x69F163 / 0x67B21F | [verified] all orig-matched; surfaced all 38 new event ponies; bought Derby Princess Luna, no crash |
+| `RVA_PART_OWNED` | 0x65CBD0 | 0x65B360 | [verified] the `call 0x65B360` in the set loop at 0x2FEAEB (not a prologue match; see A.4) |
+| `RVA_SET_COMPLETE` | 0x956F60 | 0x9573B0 | [verified] = CHECK_B; CT-confirmed |
+| `COSTUME_VIS_RVAS` x7 | 0x2F9... | 0x2FBD05/0x2FBD62/0x2FBECE/0x2FBF3C/0x2FBFAA/0x2FC102/0x2FC173 | [verified] FashionPage render fn 0x2FBAF0 |
+
+Confirmed-working features, co-tested live: profile customizations unlocked; currency edits persisted
+across a crash+relaunch; store rotation + purchase with only the 3 rotation hooks; costume unlock
+matching the reference CT.
+
+### A.4 Costume investigation history (why this took the longest)
+
+The shipping solution is the 9-hook set in Section 5.4. The path to it, kept so it is not repeated:
+
+- **Mis-identification by prologue.** `IsPartOwned` was first guessed as `0x668A90` by matching the
+  generic `48 89 5C 24 08` prologue (30 candidate hits); that site is a setter and costumes kept
+  showing as "craft, not buyable." `IsComplete` was likewise mis-picked as `0x958270` (a string
+  processor, 14 prologue hits). The correct functions are `0x65B360` (target of the `call` in the
+  set-build loop at `0x2FEAEB`) and `0x9573B0`. Lesson: identify by a call site visible in context or
+  by a reference table, then verify live.
+- **Making hidden sets appear.** The set-visibility filter is in the population loop at `0x2FE9A0`: a
+  set shows iff `CHECK_A(0x957200, owned flag set+0x79)` OR `CHECK_B(0x9573B0, avail flag set+0x8a)`.
+  Hidden sets fail both and are skipped (`je`). Patching CHECK_B (`0x9573B0`, `48 89 5C 24 10` ->
+  `B0 01 C3 90 90`) makes all hidden sets appear (confirmed live for Sunburst). It feeds a set-count
+  tally, so watch progress math.
+- **The old "appear but not obtainable" dead-end.** Appeared sets were event sets showing "craft" with
+  "Check events every day..." and no buy path by design. CHECK_A (owned fn) patch had no visible effect
+  (display reads data, not the fn). The set-button display fn `0x2FA4F0` reads the owned flag directly
+  at `0x2FA5F6` (`movzx [rsi+0x79]`) plus prices at `set+0x98/+0x9c`; forcing that read to 1 did not
+  change "craft" because Scaleform keys the crafted/locked/notCrafted frame off a different field. The
+  label strings are at `0x1589368/70/78` (crafted/locked/notCrafted); state-label selection refs at
+  `0x844B18`, `0x6A9A63`.
+- **Runtime instrumentation (code cave at CHECK_B `0x9573B0`, logging rcx=set).** CostumeSet layout:
+  id `char*` at `+0x08` (e.g. `"SET_Sunburst_00"` default, `"SET_Sunburst_DDD_TLS_MAIN/SUB_1..3"` for
+  hidden event sets); `+0x79` collection-owned byte (across 279 live sets: 212 owned / 67 not); `+0x8a`
+  available byte; float prices at `+0x98/+0x9c`; pieces vector at `+0xd0/+0xd8`. Set objects are rebuilt
+  on every editor/book open (owned resets to 0), so direct data writes do not persist. The Pony Editor
+  costume selector does not read `set+0x79` (no `0F B6 ?? 79` in `0x790000-0x7B0000`): it uses a
+  separate wardrobe/owned-costume system distinct from the Collection Book's `set+0x79`.
+- **Resolution.** The user's Gemini-updated reference CT (`ct/MLPMPFullSuite_v11.5.0a.CT`) achieved the
+  desired behavior with the 9 hooks now in `offsets.py`: `IsPartOwned` and `IsComplete` forced to
+  `mov al,1; ret`, and the 7 FashionPage `movzx [rsi+0x48]` (`0F B6 46 48`) gates forced to
+  `mov al,1`. StateFashion state id = `0x4C` (ctor `0x812880`); the pony-editor active state was
+  observed as id `0x40`.
+
+### A.5 Store hooks left disabled on purpose
+
+Sentinel `0x0FFFFFFF` in `offsets.py`; do not re-enable without the stated work:
+
+- `HOOK_ACTION_POSSIBLE` (real site `0x368810`): caused the crash-to-desktop. Its patch ends in a rel
+  `jmp` (`E9 36 A6 89 00`) computed for the old `0x366600`; at `0x368810` it lands in the wrong
+  function. The RVA is correct; the patch bytes must be rebuilt (recompute the detour target).
+- `HOOK_BUYABILITY_ALL` (best-guess `0x680D60`): never verified; purchase works without it.
+- `HOOK_BUY_HOUSE_CHECK` (best-guess `0x67E2E3`/`0x67E076`): never verified; niche housing feature.
+- `RVA_CAN_PLACE_STUB` (`0x62EE40`, best-guess): remediation-only (acts only if it sees `B0 01 C3`),
+  low risk, not a feature.
+
+### A.6 Struct-offset confirmations
+
+- PlayerManager currency/shard/material offsets unchanged, value-verified via the cipher. Materials
+  read as valid Container20 (pins `+0x3B4`, buttons `+0x3C8`, twine `+0x3DC`, ribbons `+0x3F0`, bows
+  `+0x404`). The entire PlayerManager layout is stable; only the RVA moved.
+- LevelManager level/XP offsets unchanged (`+0x00/+0x14/+0x28/+0x3C`). Caution: a u32 at `+0x60` read
+  1000 where the old doc said table-count 200, so re-check the XpTable offsets if you touch them.
+- FSM field offsets stable (`+0x08` avail, `+0x18` tree, `+0x28` weight, `+0x84` cost, `+0x88` level).
+- Royal Club (`+0xDA0`: active `+0x48`, expiration `+0x70`, tier `+0x80`, tier-active `+0x81`),
+  boosters (`+0x1178/+0x1180` doubles, `+0x1188/+0x118C` float mults, default 1.0), ferris wheel
+  (`+0x898`), token-list heads (`+0x818` primary, `+0x858` secondary): all verified live and unchanged.
+- Store record layout unchanged from 11.4.2a: stride `0x158`, cat `@+0x08`==0x39, id `@+0x18`->`+8`,
+  zones `@+0x38/+0x40`, SortPrice, currency, price `@+0x90`, xml-currency `@+0x108`, `b125 @+0x125`,
+  `b126 @+0x126`. (An early note mis-read the stride as `0x130`; the live records confirm `0x158`.)
+- Find-a-Pair state offsets (`+0x3A4/+0x3A8/+0x3B8/+0x3D0`): verify with the minigame active.
+- Cipher `Container20` ROR32 rotation = 5, unchanged (currencies decrypt with `dec1==dec2==shadow`).
+  `PAIR_STATE_ID = 102` (0x66): the state ctor at `0x87FB60` loads `r8d, 0x66` immediately before the
+  `"StateMinigameFindPair"` string.
+
+### A.7 Catalog and portrait assets
+
+- Catalog regenerated from live RAM: **2,418 ponies** (2,419 records with cat==0x39, one empty id),
+  written to `suite/data/ponies_catalog.json` (game_version 11.5.0). The Store record layout is
+  unchanged, so `store.py` needed no layout change.
+- 38 new ponies vs the old 2,381 (matches the in-game screenshot): Ringmaster, First Folio, Phony
+  Pharaoh, Sweetcream Scoops, Ordinary Mane-iac, Hum Drum Spike, Sneaky Pete, Steel Buns, 5x Mane-iac
+  Henchpony, E.W.E. Referee, the Derby set, and the Edgy set. One removed: Queen_Cleopatrot.
+- Portraits for the 38 new ponies ship in `suite/web/assets_part4.zip` as `portraits/Pony_<id>.png`,
+  sourced from all-the-ponies.com per-pony icons. The game `.ark` route was investigated and parked:
+  the format is a 16-byte header + zstd frames (each a PVR texture) + an encrypted/hashed TOC. PVR
+  frames decode cleanly to PNG, but the TOC has no plaintext filenames, portrait icons could not be
+  matched by name across the 6 archives (up to 1.4 GB), and cracking the hashed-TOC naming (needs the
+  exe loader code) was disproportionate for 38 thumbnails.
+
+---
+
 *Source of truth for all live addresses and byte patterns: [`suite/core/offsets.py`](suite/core/offsets.py).
-Re-offset evidence trail: [`OFFSETS_1150_WIP.md`](OFFSETS_1150_WIP.md). This document explains the
-meaning and the pitfalls; the code holds the numbers.*
+The evidence behind those numbers, and the dead-ends not to repeat, are in Appendix A above. This
+document explains the meaning and the pitfalls; the code holds the numbers.*
