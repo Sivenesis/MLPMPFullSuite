@@ -1,66 +1,85 @@
 # MLPMP Full Suite
 
-A lightweight, non-invasive, live RAM memory editor and trainer Suite for *My Little Pony: Magic Princess* on Windows x64.
+A lightweight trainer and memory editor for *My Little Pony: Magic Princess* on Windows (64-bit).
+
+It changes values in the game while it is running. It does not touch your save files.
 
 ---
 
-## Features
+## What It Can Do
 
-- **Level & XP Editor**: Modify player level and experience points with automated threshold calculation and level-cap handling.
-- **Currency Editor**: Real-time balance editing for Bits, Gems, Hearts, and Friendship Hearts.
-- **Element Shards Editor**: Direct editing for all six Element Shards (Loyalty, Kindness, Honesty, Generosity, Laughter, Magic).
-- **Profile Customizations**: One-click live unlock for all 743 customization items (507 Avatars, 95 Avatar Frames, 50 Backgrounds, 48 Background Frames, 43 Cutie Marks).
-- **Pony Editor (Costumes & Sets)**: Unlock all pony costume sets and individual pieces.
-- **Crafting Materials**: Set quantities for all materials (Pins, Buttons, Twine, Ribbons, Bows).
-- **Group Quests Keys**: Modify available bonus keys for Group Quest rewards chests.
-- **Active Boosters**: Adjust duration timers and multiplier ratios for active XP and Bits boosters.
-- **Find a Pair Minigame**: Freeze game timer and score multiplier, including a 'deny decrease' mode allowing multipliers to grow naturally while ignoring drops.
-- **Ferris Wheel Cooldown**: Instant bypass of the 6-hour wait timer for immediate free spin.
-- **Fortune Shop Continuous Refresh**: Keeps the in-game 50-gem refresh button permanently available for unlimited paid roster re-rolls. Royal Club is never activated.
-- **Store Editor & Catalog**: Searchable 2,418-character catalog, combined with store rotation patches for enabling purchases.
-
----
-
-## How to Launch and Close the Suite
-
-### Launching the Suite
-1. Launch the game (*My Little Pony: Magic Princess*).
-2. Double-click `start.bat` (or execute `python run.py` in your terminal).
-3. The Suite interface will open automatically in your default web browser at `http://127.0.0.1:8080/`.
-4. Click the green **"Attach to Process"** button in the header bar. The Suite will connect to the live game RAM.
-
-### Closing the Suite
-1. Click the red **[✕]** button in the top-right corner of the Suite interface.
-2. The Suite will safely detach from the game RAM, revert any temporary memory patches, and terminate the background server process.
-3. When the confirmation prompt appears, you may safely close your browser tab.
+- **Level and XP** - Set your level and experience. The right numbers are worked out for you.
+- **Currency** - Edit Bits, Gems, Hearts, and Friendship Hearts.
+- **Element Shards** - Edit all six shards: Loyalty, Kindness, Honesty, Generosity, Laughter, and Magic.
+- **Profile Unlocks** - Unlock all profile items in one click (avatars, frames, backgrounds, cutie marks, and more).
+- **Ponies and Costumes** - Unlock all costume sets and pieces.
+- **Crafting Materials** - Set how many Pins, Buttons, Twine, Ribbons, and Bows you have.
+- **Group Quest Keys** - Set your bonus keys for Group Quest reward chests.
+- **Boosters** - Change the timer and multiplier of active XP and Bits boosters.
+- **Find a Pair Minigame** - Freeze the timer and the score multiplier. A "deny decrease" mode lets the multiplier go up but never down.
+- **Ferris Wheel** - Skip the 6-hour wait and spin again right away.
+- **Fortune Shop Refresh** - Keep the 50-gem refresh button always ready so you can re-roll as often as you like.
+- **Store Catalog** - Search the full list of 2,418 characters, find the exact ponies you want, and switch on only those ones to buy in the in-game shop. Unlock a single pony or a hundred - it is completely up to you.
 
 ---
 
-## Detailed Overview
+## How to Use
+
+### To Start
+
+1. Open the game first (*My Little Pony: Magic Princess*).
+2. Double-click **`start.bat`**.
+3. The Suite opens in your web browser at `http://127.0.0.1:8080/`.
+4. Click the green **Attach to Process** button at the top. It connects to the running game.
+
+That's it. You can now use any of the tools above.
+
+### To Close
+
+1. Click the red **close (X)** button in the top-right corner of the Suite.
+2. The Suite disconnects from the game, undoes any temporary changes, and shuts itself down.
+3. When you see the confirmation message, you can close the browser tab.
+
+---
+
+## Good to Know
+
+- **Your save files are safe.** The Suite only reads and writes the game's live memory while it is running. It never opens, edits, or deletes any of your game files or save data.
+- **Nothing happens on its own.** The Suite does not connect to the game by itself, and it never changes anything until you click a button. You are always in control.
+
+---
+
+## Technical Overview
+
+*This section is for advanced users and developers. You do not need to read it to use the Suite.*
 
 ### Non-Invasive Live RAM Architecture
-The Suite is built from the ground up to be strictly non-invasive. It operates exclusively on live virtual process memory (`MyLittlePony_x64.exe`) using standard Windows memory management APIs (`ReadProcessMemory` and `WriteProcessMemory`). 
-- **Zero File Modification**: The Suite **never** opens, edits, parses, or writes to your local game files, save data, XML files, or application containers.
-- **Strict User Intent**: The Suite **never** attaches to the game automatically upon launch, nor does it apply any memory tweaks without explicit user interaction. Every patch, write, or toggle executes only when you click the corresponding control.
+
+The Suite is strictly non-invasive. It works only on the running game's virtual process memory (`MyLittlePony_x64.exe`) using standard Windows memory APIs (`ReadProcessMemory` and `WriteProcessMemory`).
+
+- **Zero file modification**: It never opens, edits, parses, or writes to local game files, save data, XML files, or application containers.
+- **Strict user intent**: It never attaches automatically and never applies a memory patch without an explicit click.
 
 ### Tab 1: Profile Editor
-The Profile Editor provides comprehensive management over player progression and inventory:
-- **Progression Management**: Edit your current player level and XP. The Suite includes an integrated XP table parser that automatically calculates and applies the exact XP thresholds required for your target level.
-- **Currency & Shards**: Adjust your core economy (Bits, Gems, Hearts), social currency (Friendship Hearts), and Element Shards. All containers are encrypted using Gameloft's 20-byte container cipher with preserved key entropy.
-- **Pony Editor & Crafting**: Toggle ownership hooks across all costume sets and pieces in the Fashion Page, while managing crafting materials (Pins, Buttons, Twine, Ribbons, Bows).
-- **Group Quests & Boosters**: Set bonus keys for quest reward chests, and extend or increase active multiplier boosters.
-- **Minigames**: Take control of the Find a Pair minigame by locking the timer or setting score multipliers. The unique 'Deny Decreasing' mode lets your multiplier climb naturally while preventing any decreases upon mismatches. Instantly reset the Ferris Wheel timer for back-to-back spins.
+
+- **Progression**: Edit level and XP. A built-in XP table parser calculates the exact thresholds for your target level.
+- **Currency and Shards**: Edit Bits, Gems, Hearts, Friendship Hearts, and Element Shards. Containers are encrypted using Gameloft's 20-byte container cipher with preserved key entropy.
+- **Ponies and Crafting**: Toggle ownership across all costume sets and pieces, and set crafting material quantities.
+- **Group Quests and Boosters**: Set bonus keys for reward chests and extend or boost active multipliers.
+- **Minigames**: Lock the Find a Pair timer or score multiplier (including "deny decrease" mode), and reset the Ferris Wheel timer.
 
 ### Tab 2: Fortune Shop and Store Tweaks
-The Fortune Shop and Store Tweaks tab is dedicated to character acquisition and catalog management:
-- **Fortune Shop Continuous Refresh**: A toggle that keeps the in-game 50-gem refresh button permanently available by neutralizing the daily paid-refresh counter in memory. Re-roll the roster as many times as you like using the normal in-game button (50 Gems each) — Royal Club is never touched. An optional one-click "Re-roll Roster Now" and "Force Rare odds" are also provided.
-- **Store Editor & Catalog**: Browse an offline, searchable database of 2,418 characters categorized across Ponyville, Canterlot, Sweet Apple Acres, Crystal Empire, and Klugetown. Filter by name, ID or town. Apply store rotation patches to make unlisted and event-exclusive ponies buyable directly in the in-game shop.
 
-### Modularity & Maintainability
-The Suite features a decoupled architecture where core Win32 memory routines (`core/memory.py`), memory mappings (`core/offsets.py`), and individual mechanic handlers (`mechanics/`) are isolated from the server and browser interface. When new game updates are released, maintainers and AI agents can adapt the Suite simply by updating centralized offset definitions without touching frontend or server code.
+- **Continuous Refresh**: Neutralizes the daily paid-refresh counter so the in-game 50-gem refresh button stays available. Royal Club is never touched. Optional "Re-roll Roster Now" and "Force Rare odds" controls are included.
+- **Store Editor and Catalog**: Browse an offline, searchable database of 2,418 characters across Ponyville, Canterlot, Sweet Apple Acres, Crystal Empire, and Klugetown. Apply store rotation patches to make unlisted and event-exclusive ponies buyable in the shop.
 
-### Reverse-Engineering & Research Documentation
-For comprehensive technical documentation detailing internal memory structures, Gameloft container ciphers (`Container20`, `Token16`), singleton RVAs, Scaleform ownership gates, store rotation patches, and adaptation guides for future game updates, please refer to [RESEARCH.md](RESEARCH.md).
+### Modularity and Maintainability
+
+Core Win32 memory routines (`core/memory.py`), memory mappings (`core/offsets.py`), and mechanic handlers (`mechanics/`) are kept separate from the server and interface. When the game updates, maintainers can adapt the Suite by updating the centralized offset definitions without touching frontend or server code.
+
+### Reverse-Engineering and Research Documentation
+
+For full technical documentation - internal memory structures, Gameloft container ciphers (`Container20`, `Token16`), singleton RVAs, Scaleform ownership gates, store rotation patches, and update-adaptation guides - see [RESEARCH.md](RESEARCH.md).
 
 ---
 
