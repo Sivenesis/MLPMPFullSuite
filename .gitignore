@@ -10,6 +10,7 @@ log.txt
 suite/logs/
 suite/*.log
 suite/log.txt
+/OFFSETS_1150_WIP.md
 
 # Extracted Asset Cache
 web/assets/portraits/*.png

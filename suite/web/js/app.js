@@ -24,6 +24,8 @@ class SuiteApp {
       'input-gems',
       'input-hearts',
       'input-friendship-hearts',
+      'input-event-currency',
+      'input-event-currency-basket',
       'input-shard-loyalty',
       'input-shard-kindness',
       'input-shard-honesty',
@@ -276,6 +278,8 @@ class SuiteApp {
           gems: parseInt(document.getElementById('input-gems')?.value) || 0,
           hearts: parseInt(document.getElementById('input-hearts')?.value) || 0,
           friendship_hearts: parseInt(document.getElementById('input-friendship-hearts')?.value) || 0,
+          event_currency: parseInt(document.getElementById('input-event-currency')?.value) || 0,
+          event_currency_basket: parseInt(document.getElementById('input-event-currency-basket')?.value) || 0,
           shards: {
             loyalty: parseInt(document.getElementById('input-shard-loyalty')?.value) || 0,
             kindness: parseInt(document.getElementById('input-shard-kindness')?.value) || 0,
@@ -302,6 +306,8 @@ class SuiteApp {
             this.liveCurrencies['input-gems'] = c.gems;
             this.liveCurrencies['input-hearts'] = c.hearts;
             this.liveCurrencies['input-friendship-hearts'] = c.friendship_hearts;
+            this.liveCurrencies['input-event-currency'] = c.event_currency;
+            this.liveCurrencies['input-event-currency-basket'] = c.event_currency_basket;
             if (s) {
               for (const [k, v] of Object.entries(s)) {
                 this.liveCurrencies[`input-shard-${k}`] = v;
@@ -330,6 +336,8 @@ class SuiteApp {
         'input-gems': 999999,
         'input-hearts': 99999,
         'input-friendship-hearts': 99999,
+        'input-event-currency': 9999999,
+        'input-event-currency-basket': 99999,
         'input-shard-loyalty': 9999,
         'input-shard-kindness': 9999,
         'input-shard-honesty': 9999,
@@ -639,6 +647,8 @@ class SuiteApp {
         'input-gems': c.gems,
         'input-hearts': c.hearts,
         'input-friendship-hearts': c.friendship_hearts,
+        'input-event-currency': c.event_currency,
+        'input-event-currency-basket': c.event_currency_basket,
         'input-shard-loyalty': s.loyalty,
         'input-shard-kindness': s.kindness,
         'input-shard-honesty': s.honesty,

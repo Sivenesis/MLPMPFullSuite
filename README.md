@@ -9,7 +9,7 @@ It changes values in the game while it is running. It does not touch your save f
 ## What It Can Do
 
 - **Level and XP** - Set your level and experience. The right numbers are worked out for you.
-- **Currency** - Edit Bits, Gems, Hearts, and Friendship Hearts.
+- **Currency** - Edit Bits, Gems, Hearts, Friendship Hearts and Event Currency.
 - **Element Shards** - Edit all six shards: Loyalty, Kindness, Honesty, Generosity, Laughter, and Magic.
 - **Profile Unlocks** - Unlock all profile items in one click (avatars, frames, backgrounds, cutie marks, and more).
 - **Ponies and Costumes** - Unlock all costume sets and pieces.

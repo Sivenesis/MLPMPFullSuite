@@ -14,7 +14,7 @@ from typing import Dict, Tuple, List, Any
 # Target Binary Definition
 TARGET_EXE_NAME = "MyLittlePony_x64.exe"
 TARGET_GAME_VERSION = "11.5.0"
-SUITE_VERSION = "2.2.0"
+SUITE_VERSION = "2.2.2"
 
 # =============================================================================
 # SINGLETON RVAs (Relative Virtual Addresses from Main Module Base)
@@ -28,6 +28,16 @@ RVA_GAME_STATE       = 0x1AD3630   # GameState*                         (11.4.2a
 RVA_UI_INVALIDATE    = 0x1A83F20   # UI Cache invalidation flag         (11.4.2a: 0x1A8C7A0)
 RVA_SHOP_CONTROLLER  = 0x1A7FEC0   # ShopManager*                       (11.4.2a: 0x1A88740)
 RVA_TOWN_CONTROLLER  = 0x1A7F568   # TownManager*                       (11.4.2a: 0x1A87DE8)
+RVA_ARENA_MANAGER    = 0x1A89BC0   # ArenaManager* (Event/Siege TLS)
+
+# =============================================================================
+# ARENA / SIEGE TIME-LIMITED STORY (TLS) (at [base + RVA_ARENA_MANAGER])
+# =============================================================================
+OFF_ARENA_ACTIVE_TLS      = 0x240    # Pointer to ActiveTLS / Arena object
+OFF_ARENA_CURRENCY        = 0xC4     # 20-byte encrypted container (Event Coins / Magic Coins)
+OFF_ARENA_CURRENCY_SHADOW = 0xD4     # 4-byte plaintext live value
+OFF_ARENA_BASKET          = 0xD8     # 20-byte encrypted container (CurrencyBasket)
+OFF_ARENA_BASKET_SHADOW   = 0xE8     # 4-byte plaintext live value
 
 # =============================================================================
 # PLAYER LEVEL MANAGER (at [base + RVA_LEVEL_MANAGER])
@@ -154,6 +164,17 @@ PATCH_SET_COMPLETE = b"\xb0\x01\xc3\x90\x90" # mov al, 1; ret; nop; nop
 COSTUME_VIS_RVAS = [0x2FBD05, 0x2FBD62, 0x2FBECE, 0x2FBF3C, 0x2FBFAA, 0x2FC102, 0x2FC173]
 ORIG_COSTUME_VIS  = b"\x0f\xb6\x46\x48"
 PATCH_COSTUME_VIS = b"\xb0\x01\x90\x90"     # mov al, 1; nop; nop
+
+# =============================================================================
+# PETS & COMPANIONS (36 Items: Category 0xA1)
+# =============================================================================
+CATEGORY_PET       = 0xA1      # Shop & Storage Category ID for Pets
+OFF_PLAYER_STORAGE = 0x40      # Storage hash map inside PlayerManager (+0x40)
+
+# Pet Ownership Gate (PlayerManager::IsPetOwned)
+RVA_PET_OWNED      = 0x5AE120  # bool PlayerManager::IsPetOwned(HashedString&) (11.5.0)
+ORIG_PET_OWNED     = b"\x48\x89\x5c\x24\x08"
+PATCH_PET_OWNED    = b"\xb0\x01\xc3\x90\x90"  # mov al, 1; ret; nop; nop
 
 # =============================================================================
 # STORE ROTATION & PURCHASE PATCHES

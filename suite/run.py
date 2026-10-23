@@ -1,5 +1,5 @@
 """
-MLPMP Full Suite v2.2.0 - Main Launcher Entrypoint.
+MLPMP Full Suite v2.2.2 - Main Launcher Entrypoint.
 Starts the local WebGUI server and opens the browser interface.
 """
 

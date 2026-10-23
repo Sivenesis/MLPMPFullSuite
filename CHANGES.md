@@ -1,3 +1,15 @@
+# Changes in v2.2.2
+
+## Event Currency Editor Support (Arena / Time-Limited Story)
+- Added full support for Time-Limited Story (TLS) / Arena event currency ("Magic Coins" / Event Coins) and Event Basket accumulator.
+- **Cheat Engine Table (`MLPMPFullSuite_v11.5.0a.CT`)**:
+  - Added Cheat Entries `ID 3205` ("Event Currency / Magic Coins") and `ID 3206` ("Event Currency Basket") with dynamic pointer paths (`[ [ MyLittlePony_x64.exe + 0x1A89BC0 ] + 0x240 ] + 0xD4` / `+ 0xE8`).
+  - Added Lua helper functions `SetEventCurrency` and `SetEventCurrencyBasket` with real-time `Container20` encryption (`ROL32-5`), automatically hooked into `LIVE_HANDLERS`.
+- **WebGUI Suite**:
+  - Added Event Coins and Event Basket input fields to the Currency Editor panel in `index.html`.
+  - Added real-time live synchronization, dirty-state preservation, and max-value preset population in `app.js`.
+  - Integrated `event_currency` and `event_currency_basket` into `CurrencyMechanic` backend (`currency.py` and `base.py`).
+
 # Changes in v2.2.0
 
 Updated for game build **11.5.0** (package 11.5.0.0).

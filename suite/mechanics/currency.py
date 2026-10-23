@@ -13,6 +13,8 @@ from core.offsets import (
     OFF_CURRENCY_BITS,
     OFF_CURRENCY_GEMS,
     OFF_CURRENCY_HEARTS,
+    OFF_ARENA_CURRENCY,
+    OFF_ARENA_BASKET,
     SHARD_OFFSETS,
     TOKEN_SOCIAL_CHEST,
 )
@@ -27,11 +29,14 @@ class CurrencyMechanic(BaseMechanic):
     def get_state(self) -> Dict[str, Any]:
         state = {
             "available": False,
+            "arena_active": False,
             "currencies": {
                 "bits": 0,
                 "gems": 0,
                 "hearts": 0,
                 "friendship_hearts": 0,
+                "event_currency": 0,
+                "event_currency_basket": 0,
             },
             "shards": {
                 "loyalty": 0,
@@ -46,6 +51,8 @@ class CurrencyMechanic(BaseMechanic):
                 "gems": False,
                 "hearts": False,
                 "friendship_hearts": False,
+                "event_currency": False,
+                "event_currency_basket": False,
                 "shards": True,
             },
         }
@@ -76,6 +83,22 @@ class CurrencyMechanic(BaseMechanic):
         state["valid"]["gems"] = dec_gems["valid"] if dec_gems else False
         state["valid"]["hearts"] = dec_hearts["valid"] if dec_hearts else False
         state["valid"]["friendship_hearts"] = fh_val is not None
+
+        # Read Arena / TLS Event Currency
+        arena_addr = self.get_active_arena_addr()
+        dec_event = None
+        dec_basket = None
+        if arena_addr:
+            raw_event = mem.read_bytes(arena_addr + OFF_ARENA_CURRENCY, 20)
+            raw_basket = mem.read_bytes(arena_addr + OFF_ARENA_BASKET, 20)
+            dec_event = decode_container_20(raw_event) if raw_event else None
+            dec_basket = decode_container_20(raw_basket) if raw_basket else None
+
+        state["arena_active"] = arena_addr is not None
+        state["currencies"]["event_currency"] = dec_event["value"] if dec_event else 0
+        state["currencies"]["event_currency_basket"] = dec_basket["value"] if dec_basket else 0
+        state["valid"]["event_currency"] = dec_event["valid"] if dec_event else False
+        state["valid"]["event_currency_basket"] = dec_basket["valid"] if dec_basket else False
 
         # Read Element Shards
         for shard_name, shard_off in SHARD_OFFSETS.items():
@@ -129,7 +152,31 @@ class CurrencyMechanic(BaseMechanic):
             if res:
                 updated.append(f"Friendship Hearts -> {val:,}")
 
-        # 3. Element Shards
+        # 3. Arena / TLS Event Currencies
+        arena_addr = self.get_active_arena_addr()
+        arena_targets = [
+            ("event_currency", OFF_ARENA_CURRENCY, "Event Coins"),
+            ("event_currency_basket", OFF_ARENA_BASKET, "Event Basket"),
+        ]
+        for key, off, label in arena_targets:
+            if key in payload and payload[key] is not None:
+                if not arena_addr:
+                    mem.log("WARN", f"[Currency] Cannot write {label}: Arena TLS is not active.")
+                    continue
+                val = max(0, min(int(payload[key]), 2147483647))
+                raw = mem.read_bytes(arena_addr + off, 20)
+                k1, k2 = None, None
+                if raw and len(raw) == 20:
+                    dec = decode_container_20(raw)
+                    if dec:
+                        k1, k2 = dec["k1"], dec["k2"]
+                encoded = encode_container_20(val, k1, k2)
+                res = mem.write_bytes(arena_addr + off, encoded)
+                ok &= res
+                if res:
+                    updated.append(f"{label} -> {val:,}")
+
+        # 4. Element Shards
         shards_data = payload.get("shards", {})
         if not isinstance(shards_data, dict):
             shards_data = {}

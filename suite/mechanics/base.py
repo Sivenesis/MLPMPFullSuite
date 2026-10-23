@@ -11,6 +11,8 @@ from typing import Dict, Any, Optional, Tuple, Set
 from core.memory import mem
 from core.offsets import (
     RVA_PLAYER_MANAGER,
+    RVA_ARENA_MANAGER,
+    OFF_ARENA_ACTIVE_TLS,
     OFF_TOKEN_MAP_PRIMARY,
     OFF_TOKEN_MAP_SECONDARY,
 )
@@ -43,6 +45,16 @@ class BaseMechanic(ABC):
             return None
         ptr = mem.read_ptr(mem.module_base + RVA_PLAYER_MANAGER)
         return ptr if mem.is_valid_user_ptr(ptr) else None
+
+    def get_active_arena_addr(self) -> Optional[int]:
+        """Resolves the ActiveTLS / Arena object pointer inside ArenaManager."""
+        if not mem.is_attached() or not mem.module_base:
+            return None
+        am_ptr = mem.read_ptr(mem.module_base + RVA_ARENA_MANAGER)
+        if not mem.is_valid_user_ptr(am_ptr):
+            return None
+        arena_ptr = mem.read_ptr(am_ptr + OFF_ARENA_ACTIVE_TLS)
+        return arena_ptr if mem.is_valid_user_ptr(arena_ptr) else None
 
     def find_token_node(self, token_name: str) -> Optional[int]:
         """
